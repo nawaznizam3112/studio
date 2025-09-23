@@ -1,7 +1,7 @@
 "use client"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import { engagementData } from "@/lib/data";
 
 const chartConfig = {
