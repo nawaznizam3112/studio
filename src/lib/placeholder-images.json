@@ -1,3 +1,64 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "dashboard-hero",
+      "description": "A modern and welcoming clinic reception area.",
+      "imageUrl": "https://images.unsplash.com/photo-1631507623121-eaaba8d4e7dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjbGluaWMlMjByZWNlcHRpb258ZW58MHx8fHwxNzU4NTk1MDIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "clinic reception"
+    },
+    {
+      "id": "doctor-avatar",
+      "description": "Avatar for a doctor.",
+      "imageUrl": "https://images.unsplash.com/photo-1550831107-1553da8c8464?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZG9jdG9yJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzU4NTkxOTc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "doctor portrait"
+    },
+    {
+      "id": "patient-avatar-1",
+      "description": "Avatar for a patient.",
+      "imageUrl": "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc1ODU1NDA2MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "patient-avatar-2",
+      "description": "Avatar for a patient.",
+      "imageUrl": "https://images.unsplash.com/photo-1522556189639-b150ed9c4330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTg1ODI4MTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "patient-avatar-3",
+      "description": "Avatar for a patient.",
+      "imageUrl": "https://images.unsplash.com/photo-1656338997878-279d71d48f6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwZXJzb24lMjBzbWlsaW5nfGVufDB8fHx8MTc1ODU4MzY2Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person smiling"
+    },
+    {
+      "id": "patient-avatar-4",
+      "description": "Avatar for a patient.",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHNtaWxpbmd8ZW58MHx8fHwxNzU4NTUwODkzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman smiling"
+    },
+    {
+      "id": "patient-avatar-5",
+      "description": "Avatar for a patient.",
+      "imageUrl": "https://images.unsplash.com/photo-1569779213435-ba3167dde7cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxtYW4lMjBnbGFzc2VzfGVufDB8fHx8MTc1ODU4NDkzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man glasses"
+    },
+    {
+      "id": "campaign-card-1",
+      "description": "Image for a dermatology campaign.",
+      "imageUrl": "https://images.unsplash.com/photo-1615900119312-2acd3a71f3aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxza2luY2FyZSUyMHByb2R1Y3R8ZW58MHx8fHwxNzU4NTg4MzA5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "skincare product"
+    },
+    {
+      "id": "campaign-card-2",
+      "description": "Image for a physiotherapy campaign.",
+      "imageUrl": "https://images.unsplash.com/photo-1609113160023-4e31f3765fd7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwaHlzaW90aGVyYXB5JTIwc2Vzc2lvbnxlbnwwfHx8fDE3NTg2MjExNjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "physiotherapy session"
+    },
+    {
+      "id": "campaign-card-3",
+      "description": "Image for a dental campaign.",
+      "imageUrl": "https://images.unsplash.com/photo-1606811881416-051a18b928a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkZW50YWwlMjB0b29sc3xlbnwwfHx8fDE3NTg2MjExNjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dental tools"
+    }
+  ]
 }
