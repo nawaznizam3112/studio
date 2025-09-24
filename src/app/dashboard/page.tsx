@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { 
   QrCode, 
   Star, 
@@ -120,6 +120,7 @@ export default function CustomerDashboard() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { toast } = useToast();
 
 
   useEffect(() => {
@@ -174,10 +175,10 @@ export default function CustomerDashboard() {
                         if(url.pathname.startsWith('/business/')) {
                             router.push(url.pathname);
                         } else {
-                           toast.error('Invalid QR Code', { description: 'This QR code is not for a valid business check-in.' });
+                           toast({variant: 'destructive', title: 'Invalid QR Code', description: 'This QR code is not for a valid business check-in.' });
                         }
                     } catch (e) {
-                        toast.error('Invalid QR Code', { description: 'The scanned code is not a valid URL.' });
+                        toast({variant: 'destructive', title: 'Invalid QR Code', description: 'The scanned code is not a valid URL.' });
                     }
                     return; // Stop scanning
                 }
@@ -192,7 +193,7 @@ export default function CustomerDashboard() {
       cancelAnimationFrame(animationFrameId);
     };
 
-  }, [dialogOpen, router]);
+  }, [dialogOpen, router, toast]);
 
   // Main data loading effect
   useEffect(() => {
@@ -218,7 +219,7 @@ export default function CustomerDashboard() {
       
     } catch (error) {
       console.warn('Dashboard initialization error:', error);
-      toast.error("Failed to load dashboard data.");
+      toast({ title: "Failed to load dashboard data." });
     } finally {
         setLoading(false);
     }
@@ -309,10 +310,10 @@ export default function CustomerDashboard() {
         fetchRewards(),
         fetchServiceHistory(),
       ]);
-      toast.success('Data refreshed');
+      toast({ title: 'Data refreshed' });
     } catch (error) {
       console.warn('Refresh failed:', error);
-      toast.error('Could not refresh data.');
+      toast({ title: 'Could not refresh data.' });
     } finally {
       setIsRefreshing(false);
     }
@@ -440,7 +441,7 @@ export default function CustomerDashboard() {
                     key={visit.id}
                     visit={visit}
                     onAction={() => {
-                        toast.info("Refreshing your history...");
+                        toast({ title: "Refreshing your history..." });
                         refreshUserData();
                     }}
                 />

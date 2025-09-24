@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { CustomerQuiz } from '@/components/features/customer-quiz';
 import Image from 'next/image';
@@ -79,6 +79,7 @@ function DigitalLoungeSkeleton() {
 
 function GuestLoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
     const { setSession } = useSession();
+    const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleGuestLogin(formData: FormData) {
@@ -86,10 +87,15 @@ function GuestLoginForm({ onLoginSuccess }: { onLoginSuccess: () => void }) {
         const result = await guestLoginOrSignup(formData);
         if (result.success && result.userId) {
             setSession({ userId: result.userId, role: result.role, name: result.name, businessId: result.businessId });
-            toast.success(`Welcome, ${result.name}!`);
+            toast({
+                title: `Welcome, ${result.name}!`,
+            });
             onLoginSuccess();
         } else {
-            toast.error(result.error || "Could not sign in as guest.");
+            toast({
+                title: result.error || "Could not sign in as guest.",
+                variant: 'destructive',
+            });
         }
         setIsSubmitting(false);
     }
@@ -132,6 +138,7 @@ export default function BusinessCheckinPage() {
     const router = useRouter();
     const { session, loading: sessionLoading } = useSession();
     const businessId = params.businessId as string;
+    const { toast } = useToast();
 
     const [business, setBusiness] = useState<any>(null);
     const [services, setServices] = useState<Service[]>([]);
@@ -166,7 +173,10 @@ export default function BusinessCheckinPage() {
                 if (businessResult.business) {
                     setBusiness(businessResult.business);
                 } else {
-                    toast.error("Business not found.");
+                    toast({
+                        title: "Business not found.",
+                        variant: 'destructive'
+                    });
                 }
 
                 if (servicesResult.services) setServices(servicesResult.services);
@@ -183,15 +193,21 @@ export default function BusinessCheckinPage() {
             }
             fetchData();
         }
-    }, [businessId]);
+    }, [businessId, toast]);
 
     const handleWebCheckIn = async () => {
         if (!session?.userId) {
-            toast.error("You must be logged in to check in.");
+            toast({
+                title: "You must be logged in to check in.",
+                variant: 'destructive'
+            });
             return;
         }
         if (!selectedService) {
-            toast.error("Please select a service.");
+            toast({
+                title: "Please select a service.",
+                variant: 'destructive'
+            });
             return;
         }
 
@@ -209,13 +225,18 @@ export default function BusinessCheckinPage() {
         if (result.success) {
             setShowConfirmation(true); // Show confirmation dialog
         } else {
-            toast.error(result.error || "Failed to check in.");
+            toast({
+                title: result.error || "Failed to check in.",
+                variant: 'destructive'
+            });
         }
     };
     
     const handleQuizComplete = (results: any[]) => {
         setQuizResults(results);
-        toast.success("Quiz completed! Your answers have been saved.");
+        toast({
+            title: "Quiz completed! Your answers have been saved."
+        });
     }
 
     if (loading) {

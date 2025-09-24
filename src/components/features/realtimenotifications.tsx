@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -31,7 +32,7 @@ import {
   Check,
   CheckCheck
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface NotificationItem {
   id: string;
@@ -62,6 +63,7 @@ export function RealtimeNotifications({
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadInitialNotifications();
@@ -123,8 +125,9 @@ export function RealtimeNotifications({
     
     // Show toast for business owners
     if (isBusinessOwner) {
-      toast.success(`${event.payload.customerName} earned ${event.payload.pointsEarned} points!`, {
-        icon: '🎯'
+      toast({
+          title: 'Points Rewarded!',
+          description: `${event.payload.customerName} earned ${event.payload.pointsEarned} points!`,
       });
     }
   };
@@ -168,8 +171,9 @@ export function RealtimeNotifications({
 
     addNotification(notification);
     
-    toast.success(`You earned a reward: ${event.payload.rewardName}!`, {
-      icon: '🎁'
+    toast({
+        title: 'Reward Earned!',
+        description: `You got: ${event.payload.rewardName}!`,
     });
   };
 
