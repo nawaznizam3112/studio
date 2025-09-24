@@ -1166,41 +1166,33 @@ export async function getBusinessCustomerHistory(businessId: string) {
 
 export async function getAllLeads() {
     try {
-        const leadActivitiesQuery = query(
-            collectionGroup(db, 'serviceHistory'),
-            where('isRedemption', '==', true) // Using this flag to identify leads for now
-        );
-        const snapshot = await getDocs(leadActivitiesQuery);
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const userDetailsCache = new Map(usersSnapshot.docs.map(doc => [doc.id, doc.data()]));
 
-        const allLeads: any[] = [];
-        const userDetailsCache = new Map();
+        const serviceHistorySnapshot = await getDocs(collectionGroup(db, 'serviceHistory'));
         
-        for (const doc of snapshot.docs) {
+        const allLeads: any[] = [];
+        
+        for (const doc of serviceHistorySnapshot.docs) {
             const data = doc.data();
-            const userId = data.userId;
-            
-            let userDetails = userDetailsCache.get(userId);
-            if (!userDetails) {
-                const userSnap = await getDoc(doc.ref.parent.parent!);
-                if (userSnap.exists()) {
-                    const uData = userSnap.data();
-                    userDetails = { name: uData.name, phone: uData.phone, email: uData.email };
-                    userDetailsCache.set(userId, userDetails);
-                } else {
-                    userDetails = { name: "Unknown User", phone: "N/A", email: "N/A" };
+            // A lead is defined by the `isRedemption` flag for now.
+            if (data.isRedemption === true) {
+                const userId = data.userId;
+                const userDetails = userDetailsCache.get(userId);
+
+                if (userDetails) {
+                    allLeads.push({
+                        id: doc.id,
+                        name: userDetails.name,
+                        phone: userDetails.phone,
+                        email: userDetails.email,
+                        serviceInterest: data.service.replace('Booked: ', ''),
+                        status: 'new', // Default status for new leads
+                        date: data.date.toDate().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' }),
+                        source: data.campaign || 'Direct Booking',
+                    });
                 }
             }
-
-            allLeads.push({
-                id: doc.id,
-                name: userDetails.name,
-                phone: userDetails.phone,
-                email: userDetails.email,
-                serviceInterest: data.service.replace('Booked: ', ''),
-                status: 'new', // Default status for new leads
-                date: data.date.toDate().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' }),
-                source: data.campaign || 'Direct Booking',
-            });
         }
         return { leads: allLeads };
     } catch (error) {
