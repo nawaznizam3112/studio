@@ -37,6 +37,7 @@ import { RealtimeActivityStream } from "../features/realtime-activity-stream";
 import { CustomerChart } from "./customer-chart";
 import { Textarea } from "../ui/textarea";
 import { UpdateVisitDialog } from "./update-visit-dialog";
+import { LeadList } from "./lead-list";
 
 interface Business {
     id: string;
@@ -236,7 +237,7 @@ export function DashboardClient({
             phone: item.userPhone,
             email: item.userEmail,
             serviceInterest: item.service,
-            status: item.leadStatus || 'new',
+            status: item.leadStatus || 'new', // The spec mentions new, qualified, converted, lost
             date: item.date,
             campaign: 'Direct QR Scan' // Mock data
         }));
@@ -411,47 +412,7 @@ export function DashboardClient({
                     </Card>
                 </TabsContent>
                  <TabsContent value="leads" className="mt-6 space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Patient Leads</CardTitle>
-                            <CardDescription>Patients who have shown interest by entering a lucky draw.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Service Interest</TableHead>
-                                        <TableHead>Campaign</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {leads.length > 0 ? leads.map(lead => (
-                                        <TableRow key={lead.id}>
-                                            <TableCell>
-                                                <div className="font-medium">{lead.name}</div>
-                                                <div className="text-xs text-muted-foreground">{lead.phone || lead.email}</div>
-                                            </TableCell>
-                                            <TableCell>{lead.serviceInterest}</TableCell>
-                                            <TableCell>{lead.campaign}</TableCell>
-                                            <TableCell>{lead.date}</TableCell>
-                                            <TableCell>{getLeadStatusBadge(lead.status)}</TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="outline" size="sm">Follow Up</Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    )) : (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="h-24 text-center">No leads yet.</TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
+                    <LeadList leads={leads} onAction={refreshData} />
                 </TabsContent>
                 <TabsContent value="profile" className="mt-6">
                     <ProfileEditor business={business} onProfileUpdated={refreshData} />
