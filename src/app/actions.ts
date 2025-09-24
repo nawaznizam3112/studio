@@ -448,6 +448,7 @@ export async function getAllActiveCampaigns() {
                     businessName: businessName,
                     businessId: campaignData.businessId,
                     expiresAt: campaignData.expiresAt.toDate().toISOString(),
+                    associatedService: campaignData.associatedService || null,
                 });
             }
         }
@@ -1126,9 +1127,9 @@ export async function getBusinessCustomerHistory(businessId: string) {
                 shareCount: userDetails.shareCount,
                 visitCount: userVisitCounts[userId] || 0,
                 date: serviceDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
-                sortDate: serviceDate,
+                sortDate: serviceDate.toISOString(),
                 activityType: data.isRedemption ? 'Booking' : 'Check-in',
-                createdAt: serviceDate.toISOString(),
+                createdAt: (data.createdAt?.toDate() ?? serviceDate).toISOString(),
                 expense: expense
             });
         }
@@ -1156,15 +1157,15 @@ export async function getBusinessCustomerHistory(businessId: string) {
                 shareCount: userDetails.shareCount,
                 visitCount: userVisitCounts[userId] || 0,
                 date: feedbackDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
-                sortDate: feedbackDate,
+                sortDate: feedbackDate.toISOString(),
                 createdAt: feedbackDate.toISOString(),
                 activityType: 'Feedback',
             });
         }
         
-        allHistory.sort((a, b) => b.sortDate.getTime() - a.sortDate.getTime());
+        allHistory.sort((a, b) => new Date(b.sortDate).getTime() - new Date(a.sortDate).getTime());
         
-        return { history: allHistory.map(item => ({...item, sortDate: item.sortDate.toISOString()})) };
+        return { history: allHistory };
     } catch (error: any) {
         console.error("Error fetching business history:", error);
         return { history: [], error: `Failed to fetch customer history. Details: ${error.message}` };
@@ -1179,12 +1180,12 @@ export async function getAllLeads() {
 
         for (const doc of serviceHistorySnapshot.docs) {
             const data = doc.data();
-            if (data.isLead) { // A lead is now defined by the `isLead` flag
+            if (data.isLead) {
                 const userId = data.userId;
                 
                 let userDetails = userDetailsCache.get(userId);
                 if (!userDetails) {
-                    const userSnap = await getDoc(doc(db, 'users', userId));
+                    const userSnap = await getDoc(doc.ref.parent.parent!);
                     if (userSnap.exists()) {
                         userDetails = userSnap.data();
                         userDetailsCache.set(userId, userDetails);
@@ -1197,10 +1198,10 @@ export async function getAllLeads() {
                         name: userDetails.name,
                         phone: userDetails.phone,
                         email: userDetails.email,
-                        serviceInterest: data.service, // The service they showed interest in
-                        status: data.leadStatus || 'new', // Default status for new leads
+                        serviceInterest: data.service,
+                        status: data.leadStatus || 'new',
                         date: data.date.toDate().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' }),
-                        source: data.campaignId ? `Campaign: ${data.campaignId}` : 'Direct Interest',
+                        source: data.campaignId ? `Campaign` : 'Direct Interest',
                     });
                 }
             }
