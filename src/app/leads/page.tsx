@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 const statusColors: { [key: string]: string } = {
   new: 'bg-blue-100 text-blue-800 border-blue-200',
