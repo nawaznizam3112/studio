@@ -1157,7 +1157,7 @@ export async function getBusinessCustomerHistory(businessId: string) {
         
         allHistory.sort((a, b) => b.sortDate.getTime() - a.sortDate.getTime());
         
-        return { history: allHistory };
+        return { history: allHistory.map(item => ({...item, sortDate: item.sortDate.toISOString()})) };
     } catch (error: any) {
         console.error("Error fetching business history:", error);
         return { history: [], error: `Failed to fetch customer history. Details: ${error.message}` };
@@ -1166,19 +1166,27 @@ export async function getBusinessCustomerHistory(businessId: string) {
 
 export async function getAllLeads() {
     try {
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        const userDetailsCache = new Map(usersSnapshot.docs.map(doc => [doc.id, doc.data()]));
-
         const serviceHistorySnapshot = await getDocs(collectionGroup(db, 'serviceHistory'));
-        
         const allLeads: any[] = [];
         
+        // Use a map to ensure we only get the latest lead activity per user if needed,
+        // but for now, we'll collect all redemption-based activities.
+        const userDetailsCache = new Map();
+
         for (const doc of serviceHistorySnapshot.docs) {
             const data = doc.data();
             // A lead is defined by the `isRedemption` flag for now.
             if (data.isRedemption === true) {
                 const userId = data.userId;
-                const userDetails = userDetailsCache.get(userId);
+                
+                let userDetails = userDetailsCache.get(userId);
+                if (!userDetails) {
+                    const userSnap = await getDoc(doc(db, 'users', userId));
+                    if (userSnap.exists()) {
+                        userDetails = userSnap.data();
+                        userDetailsCache.set(userId, userDetails);
+                    }
+                }
 
                 if (userDetails) {
                     allLeads.push({
