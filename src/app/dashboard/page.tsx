@@ -46,7 +46,7 @@ import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
 import { PromotionalFeed } from '@/components/features/promotional-feed';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import jsQR from 'jsqr';
 import { ServiceHistory } from '@/components/features/service-history';
@@ -579,9 +579,9 @@ export default function CustomerDashboard() {
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                <AlertDialogDescription>
-                                    This will create a lead for the clinic. Do you want to proceed?
-                                </AlertDialogDescription>
+                            <AlertDialogDescription>
+                                This will create a lead for the clinic. Do you want to proceed?
+                            </AlertDialogDescription>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
@@ -760,3 +760,5 @@ export default function CustomerDashboard() {
     </div>
   );
 }
+
+    
