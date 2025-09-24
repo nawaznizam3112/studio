@@ -15,7 +15,8 @@ export const campaigns: Campaign[] = [
     entries: 125,
     status: 'active',
     image: campaignImage1?.imageUrl || '',
-    imageHint: campaignImage1?.imageHint || 'skincare'
+    imageHint: campaignImage1?.imageHint || 'skincare',
+    services: ['Laser Hair Removal', 'Acne Treatment', 'Skin Rejuvenation', 'Chemical Peel']
   },
   {
     id: '2',
@@ -26,7 +27,8 @@ export const campaigns: Campaign[] = [
     entries: 88,
     status: 'active',
     image: campaignImage2?.imageUrl || '',
-    imageHint: campaignImage2?.imageHint || 'physiotherapy'
+    imageHint: campaignImage2?.imageHint || 'physiotherapy',
+    services: ['Back Pain Treatment', 'Sports Injury Rehab', 'Post-operative Care', 'Neck Pain Consultation']
   },
   {
     id: '3',
@@ -37,7 +39,8 @@ export const campaigns: Campaign[] = [
     entries: 210,
     status: 'ended',
     image: campaignImage3?.imageUrl || '',
-    imageHint: campaignImage3?.imageHint || 'dental'
+    imageHint: campaignImage3?.imageHint || 'dental',
+    services: ['Dental Cleaning', 'Tooth Pain / Extraction', 'Whitening', 'Orthodontics']
   },
 ];
 

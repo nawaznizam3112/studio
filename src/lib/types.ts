@@ -8,6 +8,7 @@ export type Campaign = {
   status: 'active' | 'ended' | 'upcoming';
   image: string;
   imageHint: string;
+  services?: string[];
 };
 
 export type Patient = {

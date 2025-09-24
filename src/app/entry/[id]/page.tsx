@@ -16,11 +16,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle, Gift, Share2, Copy } from 'lucide-react';
 import { campaigns } from '@/lib/data';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Please enter your name.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+  treatmentInterest: z.string({ required_error: 'Please select a treatment of interest.' }),
   whatsappOptIn: z.boolean().default(false),
 });
 
@@ -160,6 +162,30 @@ export default function EntryPage() {
                       <FormControl>
                         <Input type="tel" placeholder="9876543210" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="treatmentInterest"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Treatment of Interest</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a service..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {campaign.services?.map((service) => (
+                            <SelectItem key={service} value={service}>
+                              {service}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
