@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from "../ui/badge";
 import { useState } from "react";
+import Image from "next/image";
 
 interface Campaign {
     id: string;
@@ -28,6 +29,7 @@ interface Campaign {
     status: 'active' | 'completed';
     winnerName?: string;
     businessId: string;
+    prizeImageUrl?: string;
 }
 
 interface CampaignListProps {
@@ -74,10 +76,18 @@ export function CampaignList({ campaigns, onAction }: CampaignListProps) {
                 {campaigns && campaigns.length > 0 ? (
                     <ul className="space-y-4">
                         {campaigns.map(campaign => (
-                            <li key={campaign.id} className="flex items-start gap-4 rounded-md border p-4">
-                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-secondary">
-                                    <Trophy className="h-5 w-5 text-primary" />
-                                </div>
+                            <li key={campaign.id} className="flex flex-col sm:flex-row items-start gap-4 rounded-md border p-4">
+                                {campaign.prizeImageUrl && (
+                                    <div className="relative w-full sm:w-24 h-24 flex-shrink-0">
+                                         <Image 
+                                            src={campaign.prizeImageUrl} 
+                                            alt={campaign.reward} 
+                                            layout="fill" 
+                                            className="rounded-md object-cover"
+                                            data-ai-hint="reward prize"
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex-1">
                                     <div className="flex justify-between">
                                         <p className="font-semibold">{campaign.title}</p>

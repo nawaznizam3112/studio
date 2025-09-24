@@ -457,6 +457,7 @@ export async function getAllActiveCampaigns() {
                     businessId: campaignData.businessId,
                     expiresAt: campaignData.expiresAt.toDate().toISOString(),
                     associatedService: campaignData.associatedService || null,
+                    prizeImageUrl: campaignData.prizeImageUrl || null,
                 });
             }
         }
@@ -1304,6 +1305,7 @@ const createCampaignSchema = z.object({
   reward: z.string().min(1, 'Reward is required.'),
   businessId: z.string().optional(),
   associatedService: z.string().optional(),
+  prizeImageUrl: z.string().url().optional().or(z.literal('')),
 });
 
 export async function createCampaign(formData: FormData) {
@@ -1314,7 +1316,8 @@ export async function createCampaign(formData: FormData) {
     description: formData.get('description'),
     reward: formData.get('reward'),
     businessId: rawBusinessId ? String(rawBusinessId) : undefined,
-    associatedService: formData.get('associatedService')
+    associatedService: formData.get('associatedService'),
+    prizeImageUrl: formData.get('prizeImageUrl'),
   });
 
   if (!validatedFields.success) {
@@ -1365,6 +1368,7 @@ export async function getCampaignsForBusiness(businessId: string) {
             drawDate: campaign.drawDate ? campaign.drawDate.toDate().toISOString() : null,
             createdAt: campaign.createdAt ? campaign.createdAt.toDate().toISOString() : new Date().toISOString(),
             expiresAt: campaign.expiresAt.toDate().toISOString(),
+            prizeImageUrl: campaign.prizeImageUrl || null,
         }));
 
     return { campaigns };
@@ -1400,6 +1404,7 @@ export async function getAllCampaigns() {
                 createdAt: campaignData.createdAt ? campaignData.createdAt.toDate().toISOString() : new Date().toISOString(),
                 expiresAt: campaignData.expiresAt.toDate().toISOString(),
                 associatedService: campaignData.associatedService || null,
+                prizeImageUrl: campaignData.prizeImageUrl || null,
             };
         });
         

@@ -53,6 +53,7 @@ import jsQR from 'jsqr';
 import { ServiceHistory } from '@/components/features/service-history';
 import { Feedback } from '@/components/features/feedback';
 import { PendingConfirmationCard } from '@/components/features/pending-confirmation-card';
+import Image from 'next/image';
 
 
 interface User {
@@ -86,6 +87,7 @@ interface Campaign {
   businessId: string;
   expiresAt: string;
   associatedService?: string;
+  prizeImageUrl?: string;
 }
 
 interface BusinessVideo {
@@ -542,6 +544,17 @@ export default function CustomerDashboard() {
                 <div className="space-y-4">
                   {campaigns.map((campaign) => (
                     <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
+                       {campaign.prizeImageUrl && (
+                          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                            <Image
+                              src={campaign.prizeImageUrl}
+                              alt={campaign.reward}
+                              fill
+                              className="object-cover"
+                              data-ai-hint="reward prize"
+                            />
+                          </div>
+                       )}
                       <div className="flex justify-between items-start">
                          <div>
                             <p className="font-semibold">{campaign.title}</p>
@@ -552,30 +565,30 @@ export default function CustomerDashboard() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{campaign.description}</p>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="default" disabled={isSubmittingLead}>
-                            <Send className="mr-2 h-4 w-4"/>
-                            {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                    <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                    This will create a lead for the clinic. Do you want to proceed?
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="default" disabled={isSubmittingLead}>
+                              <Send className="mr-2 h-4 w-4"/>
+                              {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
+                                      <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
+                                      This will create a lead for the clinic. Do you want to proceed?
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
+                                      {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
+                                  </AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                   ))}
                 </div>
@@ -639,6 +652,17 @@ export default function CustomerDashboard() {
                 <div className="space-y-4">
                   {campaigns.map((campaign) => (
                     <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
+                      {campaign.prizeImageUrl && (
+                          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                            <Image
+                              src={campaign.prizeImageUrl}
+                              alt={campaign.reward}
+                              fill
+                              className="object-cover"
+                              data-ai-hint="reward prize"
+                            />
+                          </div>
+                       )}
                       <div className="flex justify-between items-start">
                          <div>
                             <p className="font-semibold">{campaign.title}</p>
@@ -649,30 +673,30 @@ export default function CustomerDashboard() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{campaign.description}</p>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="default" disabled={isSubmittingLead}>
-                            <Send className="mr-2 h-4 w-4"/>
-                            {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                    <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                    This will create a lead for the clinic. Do you want to proceed?
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="default" disabled={isSubmittingLead}>
+                              <Send className="mr-2 h-4 w-4"/>
+                              {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
+                                      <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
+                                      This will create a lead for the clinic. Do you want to proceed?
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
+                                      {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
+                                  </AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                   ))}
                 </div>
