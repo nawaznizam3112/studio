@@ -1110,6 +1110,12 @@ export async function getBusinessCustomerHistory(businessId: string) {
             const userId = data.userId;
             const userDetails = userDetailsCache.get(userId) || { name: "Unknown", email: "N/A", phone: "N/A", shareCount: 0 };
             const serviceDate = data.date.toDate();
+            
+            // Serialize expense timestamp if it exists
+            const expense = data.expense ? {
+                ...data.expense,
+                timestamp: data.expense.timestamp?.toDate().toISOString() || null
+            } : null;
 
             allHistory.push({
                 ...data,
@@ -1123,6 +1129,7 @@ export async function getBusinessCustomerHistory(businessId: string) {
                 sortDate: serviceDate,
                 activityType: data.isRedemption ? 'Booking' : 'Check-in',
                 createdAt: serviceDate.toISOString(),
+                expense: expense
             });
         }
         
