@@ -56,7 +56,7 @@ function CampaignsPageSkeleton() {
 export default function AdminCampaignsPage() {
     const [campaigns, setCampaigns] = useState<any[]>([]);
     const [businesses, setBusinesses] = useState<any[]>([]);
-    const [selectedBusiness, setSelectedBusiness] = useState<string>('');
+    const [selectedBusiness, setSelectedBusiness] = useState<string>(''); // Empty string means platform campaign
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -75,16 +75,12 @@ export default function AdminCampaignsPage() {
             if (businessesResult.error) throw new Error(businessesResult.error);
             const biz = businessesResult.businesses || [];
             setBusinesses(biz);
-            
-            if (!selectedBusiness && biz.length > 0) {
-                setSelectedBusiness(biz[0].id);
-            }
 
         } catch (e: any) {
             setError(e.message);
         }
         setLoading(false);
-    }, [selectedBusiness]);
+    }, []);
 
     useEffect(() => {
         fetchData();
@@ -118,26 +114,23 @@ export default function AdminCampaignsPage() {
                         </CardHeader>
                         <CardContent>
                              <div className="space-y-2 mb-4">
-                                <Label htmlFor="business-select">Assign to Business</Label>
+                                <Label htmlFor="business-select">Assign to Business (Optional)</Label>
                                 <Select onValueChange={setSelectedBusiness} value={selectedBusiness}>
                                     <SelectTrigger id="business-select">
                                         <SelectValue placeholder="Select a business..." />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="">None (Platform Campaign)</SelectItem>
                                         {businesses.map(b => (
                                             <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
-                            {selectedBusiness ? (
-                                <CreateCampaignForm 
-                                    businessId={selectedBusiness} 
-                                    onCampaignCreated={handleAction} 
-                                />
-                            ) : (
-                                <p className="text-center text-sm text-muted-foreground pt-4">Please select a business to create a campaign.</p>
-                            )}
+                            <CreateCampaignForm 
+                                businessId={selectedBusiness || undefined}
+                                onCampaignCreated={handleAction} 
+                            />
                         </CardContent>
                     </Card>
                 </div>

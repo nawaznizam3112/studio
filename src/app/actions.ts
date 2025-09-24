@@ -438,7 +438,7 @@ export async function getAllActiveCampaigns() {
             const campaignData = campaignDoc.data();
             
             if (campaignData.expiresAt && campaignData.expiresAt.toDate() > now) {
-                const businessName = businessMap.get(campaignData.businessId) || 'A business';
+                const businessName = businessMap.get(campaignData.businessId) || 'Platform Campaign';
                 
                 validCampaigns.push({
                     id: campaignDoc.id,
@@ -1292,7 +1292,7 @@ const createCampaignSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   description: z.string().min(1, 'Description is required.'),
   reward: z.string().min(1, 'Reward is required.'),
-  businessId: z.string().min(1),
+  businessId: z.string().min(1).optional(),
   associatedService: z.string().optional(),
 });
 
@@ -1312,12 +1312,17 @@ export async function createCampaign(formData: FormData) {
   const expiresAt = addDays(new Date(), 5);
 
   try {
-    await addDoc(collection(db, 'campaigns'), {
+    const campaignData: any = {
       ...validatedFields.data,
       status: 'active',
       createdAt: serverTimestamp(),
       expiresAt: Timestamp.fromDate(expiresAt),
-    });
+    };
+    if (!campaignData.businessId) {
+        campaignData.businessId = null; // Ensure it's null for platform campaigns
+    }
+
+    await addDoc(collection(db, 'campaigns'), campaignData);
     return { success: true, message: 'Campaign created successfully!' };
   } catch (error) {
     console.error("Error creating campaign:", error);
@@ -1368,7 +1373,7 @@ export async function getAllCampaigns() {
         
         const allCampaigns = campaignsSnapshot.docs.map(campaignDoc => {
             const campaignData = campaignDoc.data();
-            const businessName = businessMap.get(campaignData.businessId) || 'Unknown Business';
+            const businessName = businessMap.get(campaignData.businessId) || 'Platform Campaign';
 
             return {
                 id: campaignDoc.id,
@@ -1459,7 +1464,7 @@ export async function runLuckyDraw(campaignId: string, businessId: string): Prom
 const createLeadFromCampaignSchema = z.object({
     userId: z.string().min(1),
     campaignId: z.string().min(1),
-    businessId: z.string().min(1),
+    businessId: z.string().min(1).optional(),
     associatedService: z.string().min(1),
 });
 
@@ -1481,21 +1486,28 @@ export async function createLeadFromCampaign(input: z.infer<typeof createLeadFro
             return { error: 'You have already entered this lucky draw.' };
         }
 
-        const businessSnap = await getDoc(doc(db, 'businesses', businessId));
-        if (!businessSnap.exists()) {
-            return { error: "Business not found." };
+        let businessName = "Platform";
+        let industry = "General";
+
+        if(businessId) {
+            const businessSnap = await getDoc(doc(db, 'businesses', businessId));
+            if (!businessSnap.exists()) {
+                return { error: "Business not found." };
+            }
+            const businessData = businessSnap.data();
+            businessName = businessData.name;
+            industry = businessData.industry;
         }
-        const businessData = businessSnap.data();
 
         // Record this as a "lead" activity in the user's history
         const historyCollectionRef = collection(db, `users/${userId}/serviceHistory`);
         await addDoc(historyCollectionRef, {
             userId,
-            businessId,
+            businessId: businessId || null,
             campaignId,
-            businessName: businessData.name,
+            businessName,
             service: associatedService, // The service they are interested in
-            industry: businessData.industry,
+            industry: industry,
             date: new Date(),
             status: 'Lead', // A new status to identify this as a lead
             activityType: 'Lead',
@@ -2057,3 +2069,4 @@ export async function confirmOrDisputeVisit(input: z.infer<typeof confirmOrDispu
         return { error: `Failed to ${action} the visit record.` };
     }
 }
+

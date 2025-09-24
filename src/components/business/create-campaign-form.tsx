@@ -22,7 +22,7 @@ function SubmitButton() {
 }
 
 interface CreateCampaignFormProps {
-    businessId: string;
+    businessId?: string;
     onCampaignCreated: () => void;
 }
 
@@ -33,7 +33,10 @@ export function CreateCampaignForm({ businessId, onCampaignCreated }: CreateCamp
     const [loadingServices, setLoadingServices] = useState(false);
     
     useEffect(() => {
-        if (!businessId) return;
+        if (!businessId) {
+            setServices([]);
+            return;
+        }
 
         async function fetchServices() {
             setLoadingServices(true);
@@ -51,7 +54,9 @@ export function CreateCampaignForm({ businessId, onCampaignCreated }: CreateCamp
 
 
     async function handleAction(formData: FormData) {
-        formData.append('businessId', businessId);
+        if (businessId) {
+            formData.append('businessId', businessId);
+        }
         const result = await createCampaign(formData);
         if (result.success) {
             toast({
@@ -85,17 +90,21 @@ export function CreateCampaignForm({ businessId, onCampaignCreated }: CreateCamp
             </div>
             <div className="space-y-2">
                 <Label htmlFor="associatedService">Associated Service (for Lead Gen)</Label>
-                <Select name="associatedService" required>
-                    <SelectTrigger id="associatedService" disabled={loadingServices}>
-                        <SelectValue placeholder={loadingServices ? "Loading services..." : "Select a service..."} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {services.map(service => (
-                            <SelectItem key={service.id} value={service.name}>{service.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">Selecting a service is required to create a lead generation campaign.</p>
+                {businessId ? (
+                    <Select name="associatedService" required>
+                        <SelectTrigger id="associatedService" disabled={loadingServices}>
+                            <SelectValue placeholder={loadingServices ? "Loading services..." : "Select a service..."} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {services.map(service => (
+                                <SelectItem key={service.id} value={service.name}>{service.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                ) : (
+                    <Input name="associatedService" id="associatedService" placeholder="e.g., Advanced Laser Hair Removal" required />
+                )}
+                <p className="text-xs text-muted-foreground">This is the service users express interest in to enter the draw.</p>
             </div>
             <SubmitButton />
         </form>
