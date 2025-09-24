@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -46,7 +45,7 @@ import { RealtimeNotifications } from '@/components/features/realtimenotificatio
 import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
 import { PromotionalFeed } from '@/components/features/promotional-feed';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import jsQR from 'jsqr';
@@ -573,20 +572,22 @@ export default function CustomerDashboard() {
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                      <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                      This will create a lead for the clinic. Do you want to proceed?
-                                  </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                      {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                  </AlertDialogAction>
-                              </AlertDialogFooter>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
+                                </AlertDialogDescription>
+                                <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
+                                <AlertDialogDescription>
+                                    This will create a lead for the clinic. Do you want to proceed?
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
+                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
                     </div>
@@ -681,20 +682,22 @@ export default function CustomerDashboard() {
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                      <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                      This will create a lead for the clinic. Do you want to proceed?
-                                  </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                      {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                  </AlertDialogAction>
-                              </AlertDialogFooter>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
+                                </AlertDialogDescription>
+                                <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
+                                <AlertDialogDescription>
+                                    This will create a lead for the clinic. Do you want to proceed?
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
+                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
                     </div>
