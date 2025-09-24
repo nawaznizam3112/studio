@@ -1187,20 +1187,17 @@ export async function getAllLeads() {
         const allLeads: any[] = [];
         const userDetailsCache = new Map();
 
+        // Efficiently pre-fetch all users to avoid multiple reads inside the loop
+        const allUsersSnapshot = await getDocs(collection(db, 'users'));
+        allUsersSnapshot.forEach(userDoc => {
+            userDetailsCache.set(userDoc.id, userDoc.data());
+        });
+
         for (const docSnapshot of serviceHistorySnapshot.docs) {
             const data = docSnapshot.data();
             if (data.isLead) {
                 const userId = data.userId;
-                
-                let userDetails = userDetailsCache.get(userId);
-                if (!userDetails) {
-                    // Assuming the parent of serviceHistory is the user document
-                    const userSnap = await getDoc(docSnapshot.ref.parent.parent!);
-                    if (userSnap.exists()) {
-                        userDetails = userSnap.data();
-                        userDetailsCache.set(userId, userDetails);
-                    }
-                }
+                const userDetails = userDetailsCache.get(userId);
 
                 if (userDetails) {
                     allLeads.push({
@@ -1480,13 +1477,14 @@ export async function runLuckyDraw(campaignId: string, businessId: string): Prom
 const createLeadFromCampaignSchema = z.object({
     userId: z.string().min(1),
     campaignId: z.string().min(1),
-    businessId: z.string().min(1).optional(),
+    businessId: z.string().min(1).nullable().optional(),
     associatedService: z.string().min(1),
 });
 
 export async function createLeadFromCampaign(input: z.infer<typeof createLeadFromCampaignSchema>) {
     const validation = createLeadFromCampaignSchema.safeParse(input);
     if (!validation.success) {
+        console.error("Lead creation validation error:", validation.error.issues);
         return { error: 'Invalid input for creating a lead.' };
     }
     const { userId, campaignId, businessId, associatedService } = validation.data;
