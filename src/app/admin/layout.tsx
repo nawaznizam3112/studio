@@ -2,7 +2,7 @@
 'use client';
 
 import { Sidebar, SidebarProvider, SidebarInset, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
-import { Home, Building2, Factory, LogOut, User, QrCode, Target } from "lucide-react";
+import { Home, Building2, Factory, LogOut, User, QrCode, Target, Trophy } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/hooks/use-session.tsx";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -84,6 +84,14 @@ export default function AdminLayout({
                           <Link href="/admin/clients">
                               <Target />
                               <span>Clients</span>
+                          </Link>
+                      </SidebarMenuButton>
+                  </SidebarMenuItem>
+                   <SidebarMenuItem>
+                      <SidebarMenuButton asChild tooltip="Campaigns">
+                          <Link href="/admin/campaigns">
+                              <Trophy />
+                              <span>Campaigns</span>
                           </Link>
                       </SidebarMenuButton>
                   </SidebarMenuItem>

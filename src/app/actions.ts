@@ -1131,7 +1131,7 @@ export async function getBusinessCustomerHistory(businessId: string) {
             const userId = data.userId;
             if (!userId) continue;
 
-            const userDetails = userDetailsCache.get(userId) || { name: "Unknown", email: "N/A", phone: "N/A", shareCount: 0 };
+            const userDetails = userDetailsCache.get(userId) || { name: "Unknown", email: "N/A", phone: "N-A", shareCount: 0 };
             const feedbackDate = data.createdAt.toDate();
             
             allHistory.push({
@@ -1305,6 +1305,42 @@ export async function getChallengesForBusiness(businessId: string) {
     return { challenges: [], error: 'Failed to fetch challenges.' };
   }
 }
+
+export async function getAllChallenges() {
+    try {
+        const businessesSnapshot = await getDocs(collection(db, 'businesses'));
+        const businessMap = new Map(businessesSnapshot.docs.map(doc => [doc.id, doc.data().name]));
+
+        const challengesQuery = query(collection(db, 'challenges'), orderBy('createdAt', 'desc'));
+        const challengesSnapshot = await getDocs(challengesQuery);
+        
+        const allChallenges = challengesSnapshot.docs.map(challengeDoc => {
+            const challengeData = challengeDoc.data();
+            const businessName = businessMap.get(challengeData.businessId) || 'Unknown Business';
+
+            return {
+                id: challengeDoc.id,
+                title: challengeData.title,
+                description: challengeData.description,
+                reward: challengeData.reward,
+                status: challengeData.status,
+                businessId: challengeData.businessId,
+                businessName: businessName,
+                winnerId: challengeData.winnerId || null,
+                winnerName: challengeData.winnerName || null,
+                drawDate: challengeData.drawDate ? challengeData.drawDate.toDate().toISOString() : null,
+                createdAt: challengeData.createdAt ? challengeData.createdAt.toDate().toISOString() : new Date().toISOString(),
+                expiresAt: challengeData.expiresAt.toDate().toISOString(),
+            };
+        });
+        
+        return { challenges: allChallenges };
+    } catch (error) {
+        console.error("Error fetching all challenges:", error);
+        return { challenges: [], error: 'Failed to fetch challenges.' };
+    }
+}
+
 
 export async function runLuckyDraw(campaignId: string, businessId: string): Promise<{ success: boolean; error?: string; winnerName?: string }> {
     if (!campaignId || !businessId) {
