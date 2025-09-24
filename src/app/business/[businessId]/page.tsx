@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { CustomerQuiz } from '@/components/features/customer-quiz';
 import Image from 'next/image';
-import { MessageSquare, ExternalLink, User, UserPlus, Lightbulb, ShoppingCart, Film, Star } from 'lucide-react';
+import { MessageSquare, ExternalLink, User, UserPlus, Lightbulb, ShoppingCart, Film, Star, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
