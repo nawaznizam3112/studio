@@ -30,6 +30,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Allow requests from the Firebase Studio preview environment
+  experimental: {
+    allowedDevOrigins: [
+      'https://6000-firebase-studio-1758620352141.cluster-osvg2nzmmzhzqqjio6oojllbg4.cloudworkstations.dev',
+    ],
+  },
 };
 
 export default nextConfig;
