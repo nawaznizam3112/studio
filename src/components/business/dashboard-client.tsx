@@ -27,7 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage } from "@/app/actions";
+import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage, getServicesForBusiness } from "@/app/actions";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { ProfileEditor } from "./profile-editor";
 import { useToast } from "@/hooks/use-toast";
@@ -105,6 +105,7 @@ export function DashboardClient({
   const [business, setBusiness] = useState<Business>(initialBusiness);
   const [history, setHistory] = useState<any[]>(initialHistory);
   const [campaigns, setCampaigns] = useState<any[]>(initialCampaigns);
+  const [services, setServices] = useState<any[]>(initialServices);
   const [error, setError] = useState<string | null>(null);
   const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
   const broadcastFormRef = useRef<HTMLFormElement>(null);
@@ -114,10 +115,11 @@ export function DashboardClient({
     if (!session) return;
     setError(null);
     try {
-      const [campaignsResult, businessResult, historyResult] = await Promise.all([
+      const [campaignsResult, businessResult, historyResult, servicesResult] = await Promise.all([
         getCampaignsForBusiness(businessId),
         getBusinessById(businessId),
         getBusinessCustomerHistory(businessId),
+        getServicesForBusiness(businessId),
       ]);
 
       if (campaignsResult.error) throw new Error(campaignsResult.error);
@@ -128,6 +130,9 @@ export function DashboardClient({
 
       if (historyResult.error) throw new Error(historyResult.error);
       setHistory(historyResult.history || []);
+
+      if (servicesResult.error) throw new Error(servicesResult.error);
+      setServices(servicesResult.services || []);
 
 
     } catch (e: any) {
@@ -218,8 +223,7 @@ export function DashboardClient({
         // This logic correctly identifies leads from the general activity history.
         const leadActivities = history.filter(item => 
             item.activityType === 'Lead' || 
-            item.activityType === 'Booking' || // Bookings are also leads
-            (item.preConsultationNotes && item.activityType === 'Check-in' && !item.service.toLowerCase().includes('booked'))
+            item.activityType === 'Booking' // Bookings are also leads
         );
         
         // Deduplicate by user to represent unique leads
@@ -275,7 +279,6 @@ export function DashboardClient({
                 <ScrollArea className="w-full whitespace-nowrap">
                     <TabsList className="inline-flex w-max">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
-                        <TabsTrigger value="leads">Leads ({leads.length})</TabsTrigger>
                         <TabsTrigger value="campaigns">Lucky Draw</TabsTrigger>
                         <TabsTrigger value="profile">Clinic Profile</TabsTrigger>
                     </TabsList>
@@ -412,16 +415,24 @@ export function DashboardClient({
                         </CardContent>
                     </Card>
                 </TabsContent>
-                 <TabsContent value="leads" className="mt-6 space-y-6">
-                    <LeadList leads={leads} onAction={refreshData} />
-                </TabsContent>
                 <TabsContent value="profile" className="mt-6">
                     <ProfileEditor business={business} onProfileUpdated={refreshData} />
                 </TabsContent>
                 <TabsContent value="campaigns" className="mt-6">
                    <div className="grid gap-8 md:grid-cols-3">
                         <div className="md:col-span-1">
-                           <CreateCampaignForm businessId={businessId} onCampaignCreated={refreshData} />
+                           <Card>
+                                <CardHeader>
+                                    <CardTitle>New Lucky Draw Campaign</CardTitle>
+                                    <CardDescription>Create a new lucky draw to engage your patients.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <CreateCampaignForm 
+                                        businessId={businessId} 
+                                        onCampaignCreated={refreshData} 
+                                    />
+                                </CardContent>
+                            </Card>
                         </div>
                         <div className="md:col-span-2">
                             <CampaignList campaigns={campaigns} onAction={refreshData} />

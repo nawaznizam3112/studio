@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect, useState } from "react";
-import { getAllCampaigns, getBusinesses } from "@/app/actions";
+import { useEffect, useState, useCallback } from "react";
+import { getAllCampaigns, getBusinesses, getServicesForBusiness } from "@/app/actions";
 import { CreateCampaignForm } from "@/components/business/create-campaign-form";
 import { CampaignList } from "@/components/business/campaign-list";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,8 +60,9 @@ export default function AdminCampaignsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
+        setError(null);
         try {
             const [campaignsResult, businessesResult] = await Promise.all([
                 getAllCampaigns(),
@@ -72,24 +73,24 @@ export default function AdminCampaignsPage() {
             setCampaigns(campaignsResult.campaigns || []);
 
             if (businessesResult.error) throw new Error(businessesResult.error);
-            setBusinesses(businessesResult.businesses || []);
-            // Set default selected business if not already set
-            if (!selectedBusiness && businessesResult.businesses && businessesResult.businesses.length > 0) {
-                setSelectedBusiness(businessesResult.businesses[0].id);
+            const biz = businessesResult.businesses || [];
+            setBusinesses(biz);
+            
+            if (!selectedBusiness && biz.length > 0) {
+                setSelectedBusiness(biz[0].id);
             }
 
         } catch (e: any) {
             setError(e.message);
         }
         setLoading(false);
-    };
+    }, [selectedBusiness]);
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
 
     const handleAction = () => {
-        // Refetch campaigns after an action
         fetchData();
     };
     
@@ -148,4 +149,3 @@ export default function AdminCampaignsPage() {
         </div>
     );
 }
-

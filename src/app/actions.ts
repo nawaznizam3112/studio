@@ -1164,6 +1164,52 @@ export async function getBusinessCustomerHistory(businessId: string) {
     }
 }
 
+export async function getAllLeads() {
+    try {
+        const leadActivitiesQuery = query(
+            collectionGroup(db, 'serviceHistory'),
+            where('isRedemption', '==', true) // Using this flag to identify leads for now
+        );
+        const snapshot = await getDocs(leadActivitiesQuery);
+
+        const allLeads: any[] = [];
+        const userDetailsCache = new Map();
+        
+        for (const doc of snapshot.docs) {
+            const data = doc.data();
+            const userId = data.userId;
+            
+            let userDetails = userDetailsCache.get(userId);
+            if (!userDetails) {
+                const userSnap = await getDoc(doc.ref.parent.parent!);
+                if (userSnap.exists()) {
+                    const uData = userSnap.data();
+                    userDetails = { name: uData.name, phone: uData.phone, email: uData.email };
+                    userDetailsCache.set(userId, userDetails);
+                } else {
+                    userDetails = { name: "Unknown User", phone: "N/A", email: "N/A" };
+                }
+            }
+
+            allLeads.push({
+                id: doc.id,
+                name: userDetails.name,
+                phone: userDetails.phone,
+                email: userDetails.email,
+                serviceInterest: data.service.replace('Booked: ', ''),
+                status: 'new', // Default status for new leads
+                date: data.date.toDate().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' }),
+                source: data.campaign || 'Direct Booking',
+            });
+        }
+        return { leads: allLeads };
+    } catch (error) {
+        console.error("Error fetching all leads:", error);
+        return { leads: [], error: 'Failed to fetch leads.' };
+    }
+}
+
+
 const sendBroadcastSchema = z.object({
     businessId: z.string().min(1),
     message: z.string().min(1),
@@ -1243,6 +1289,7 @@ const createCampaignSchema = z.object({
   description: z.string().min(1, 'Description is required.'),
   reward: z.string().min(1, 'Reward is required.'),
   businessId: z.string().min(1),
+  associatedService: z.string().optional(),
 });
 
 export async function createCampaign(formData: FormData) {
@@ -1251,6 +1298,7 @@ export async function createCampaign(formData: FormData) {
     description: formData.get('description'),
     reward: formData.get('reward'),
     businessId: formData.get('businessId'),
+    associatedService: formData.get('associatedService')
   });
 
   if (!validatedFields.success) {
@@ -1331,6 +1379,7 @@ export async function getAllCampaigns() {
                 drawDate: campaignData.drawDate ? campaignData.drawDate.toDate().toISOString() : null,
                 createdAt: campaignData.createdAt ? campaignData.createdAt.toDate().toISOString() : new Date().toISOString(),
                 expiresAt: campaignData.expiresAt.toDate().toISOString(),
+                associatedService: campaignData.associatedService || null,
             };
         });
         
@@ -1951,5 +2000,3 @@ export async function confirmOrDisputeVisit(input: z.infer<typeof confirmOrDispu
         return { error: `Failed to ${action} the visit record.` };
     }
 }
-
-    
