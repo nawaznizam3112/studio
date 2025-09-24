@@ -1186,14 +1186,15 @@ export async function getAllLeads() {
         const allLeads: any[] = [];
         const userDetailsCache = new Map();
 
-        for (const doc of serviceHistorySnapshot.docs) {
-            const data = doc.data();
+        for (const docSnapshot of serviceHistorySnapshot.docs) {
+            const data = docSnapshot.data();
             if (data.isLead) {
                 const userId = data.userId;
                 
                 let userDetails = userDetailsCache.get(userId);
                 if (!userDetails) {
-                    const userSnap = await getDoc(doc.ref.parent.parent!);
+                    // Assuming the parent of serviceHistory is the user document
+                    const userSnap = await getDoc(docSnapshot.ref.parent.parent!);
                     if (userSnap.exists()) {
                         userDetails = userSnap.data();
                         userDetailsCache.set(userId, userDetails);
@@ -1202,7 +1203,7 @@ export async function getAllLeads() {
 
                 if (userDetails) {
                     allLeads.push({
-                        id: doc.id,
+                        id: docSnapshot.id,
                         name: userDetails.name,
                         phone: userDetails.phone,
                         email: userDetails.email,
@@ -1220,6 +1221,7 @@ export async function getAllLeads() {
         return { leads: [], error: 'Failed to fetch leads.' };
     }
 }
+
 
 
 const sendBroadcastSchema = z.object({
@@ -1300,16 +1302,18 @@ const createCampaignSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   description: z.string().min(1, 'Description is required.'),
   reward: z.string().min(1, 'Reward is required.'),
-  businessId: z.string().min(1).optional().or(z.literal('')),
+  businessId: z.string().optional(),
   associatedService: z.string().optional(),
 });
 
 export async function createCampaign(formData: FormData) {
+  const rawBusinessId = formData.get('businessId');
+  
   const validatedFields = createCampaignSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
     reward: formData.get('reward'),
-    businessId: formData.get('businessId'),
+    businessId: rawBusinessId ? String(rawBusinessId) : undefined,
     associatedService: formData.get('associatedService')
   });
 
@@ -1318,15 +1322,12 @@ export async function createCampaign(formData: FormData) {
   }
 
   const expiresAt = addDays(new Date(), 5);
-  const data = validatedFields.data;
+  const { businessId, ...data } = validatedFields.data;
   
   try {
     const campaignData: any = {
-      title: data.title,
-      description: data.description,
-      reward: data.reward,
-      associatedService: data.associatedService,
-      businessId: data.businessId || null,
+      ...data,
+      businessId: businessId || null,
       status: 'active',
       createdAt: serverTimestamp(),
       expiresAt: Timestamp.fromDate(expiresAt),
