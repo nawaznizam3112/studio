@@ -248,7 +248,7 @@ export default function CustomerDashboard() {
       if (result.success) {
           toast({
               title: "You're in!",
-              description: "Your entry has been recorded. The clinic will be in touch if you win!",
+              description: "Your entry is recorded. For queries, contact +919845180066.",
           });
       } else {
           toast({ title: "Error", description: result.error, variant: 'destructive' });
