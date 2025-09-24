@@ -32,3 +32,16 @@ export type EngagementData = {
   entries: number;
   leads: number;
 };
+
+export type Lead = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  treatmentInterest: string;
+  campaignName: string;
+  date: string;
+  status: 'new' | 'qualified' | 'converted' | 'lost';
+  avatar: string;
+  avatarHint: string;
+};
