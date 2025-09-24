@@ -122,12 +122,20 @@ export async function getServiceHistory(userId: string): Promise<{ history: any[
         const history = snapshot.docs.map(doc => {
             const data = doc.data();
             const serviceDate = data.date.toDate();
+            
+            // Serialize expense timestamp if it exists
+            const expense = data.expense ? {
+                ...data.expense,
+                timestamp: data.expense.timestamp?.toDate().toISOString() || null
+            } : null;
+            
             return {
                 id: doc.id,
                 ...data,
                 type: data.industry || 'General',
                 date: serviceDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' }),
                 sortDate: serviceDate,
+                expense: expense
             };
         });
 
@@ -1128,7 +1136,7 @@ export async function getBusinessCustomerHistory(businessId: string) {
                 visitCount: userVisitCounts[userId] || 0,
                 date: serviceDate.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
                 sortDate: serviceDate.toISOString(),
-                activityType: data.isRedemption ? 'Booking' : 'Check-in',
+                activityType: data.isRedemption ? 'Booking' : (data.activityType || 'Check-in'),
                 createdAt: (data.createdAt?.toDate() ?? serviceDate).toISOString(),
                 expense: expense
             });
@@ -1139,7 +1147,7 @@ export async function getBusinessCustomerHistory(businessId: string) {
             const userId = data.userId;
             if (!userId) continue;
 
-            const userDetails = userDetailsCache.get(userId) || { name: "Unknown", email: "N/A", phone: "N-A", shareCount: 0 };
+            const userDetails = userDetailsCache.get(userId) || { name: "Unknown", email: "N-A", phone: "N-A", shareCount: 0 };
             const feedbackDate = data.createdAt.toDate();
             
             allHistory.push({
@@ -1292,7 +1300,7 @@ const createCampaignSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   description: z.string().min(1, 'Description is required.'),
   reward: z.string().min(1, 'Reward is required.'),
-  businessId: z.string().min(1).optional(),
+  businessId: z.string().min(1).optional().or(z.literal('')),
   associatedService: z.string().optional(),
 });
 
@@ -1306,22 +1314,24 @@ export async function createCampaign(formData: FormData) {
   });
 
   if (!validatedFields.success) {
-    return { error: "Invalid form data." };
+    return { error: "Invalid form data.", issues: validatedFields.error.flatten() };
   }
 
   const expiresAt = addDays(new Date(), 5);
-
+  const data = validatedFields.data;
+  
   try {
     const campaignData: any = {
-      ...validatedFields.data,
+      title: data.title,
+      description: data.description,
+      reward: data.reward,
+      associatedService: data.associatedService,
+      businessId: data.businessId || null,
       status: 'active',
       createdAt: serverTimestamp(),
       expiresAt: Timestamp.fromDate(expiresAt),
     };
-    if (!campaignData.businessId) {
-        campaignData.businessId = null; // Ensure it's null for platform campaigns
-    }
-
+    
     await addDoc(collection(db, 'campaigns'), campaignData);
     return { success: true, message: 'Campaign created successfully!' };
   } catch (error) {
@@ -2070,3 +2080,6 @@ export async function confirmOrDisputeVisit(input: z.infer<typeof confirmOrDispu
     }
 }
 
+
+
+    
