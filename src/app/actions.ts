@@ -1168,15 +1168,11 @@ export async function getAllLeads() {
     try {
         const serviceHistorySnapshot = await getDocs(collectionGroup(db, 'serviceHistory'));
         const allLeads: any[] = [];
-        
-        // Use a map to ensure we only get the latest lead activity per user if needed,
-        // but for now, we'll collect all redemption-based activities.
         const userDetailsCache = new Map();
 
         for (const doc of serviceHistorySnapshot.docs) {
             const data = doc.data();
-            // A lead is defined by the `isRedemption` flag for now.
-            if (data.isRedemption === true) {
+            if (data.isLead) { // A lead is now defined by the `isLead` flag
                 const userId = data.userId;
                 
                 let userDetails = userDetailsCache.get(userId);
@@ -1194,10 +1190,10 @@ export async function getAllLeads() {
                         name: userDetails.name,
                         phone: userDetails.phone,
                         email: userDetails.email,
-                        serviceInterest: data.service.replace('Booked: ', ''),
-                        status: 'new', // Default status for new leads
+                        serviceInterest: data.service, // The service they showed interest in
+                        status: data.leadStatus || 'new', // Default status for new leads
                         date: data.date.toDate().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium' }),
-                        source: data.campaign || 'Direct Booking',
+                        source: data.campaignId ? `Campaign: ${data.campaignId}` : 'Direct Interest',
                     });
                 }
             }
@@ -1452,6 +1448,59 @@ export async function runLuckyDraw(campaignId: string, businessId: string): Prom
     }
 }
 
+const createLeadFromCampaignSchema = z.object({
+    userId: z.string().min(1),
+    campaignId: z.string().min(1),
+    businessId: z.string().min(1),
+    associatedService: z.string().min(1),
+});
+
+export async function createLeadFromCampaign(input: z.infer<typeof createLeadFromCampaignSchema>) {
+    const validation = createLeadFromCampaignSchema.safeParse(input);
+    if (!validation.success) {
+        return { error: 'Invalid input for creating a lead.' };
+    }
+    const { userId, campaignId, businessId, associatedService } = validation.data;
+
+    try {
+        // Check for duplicates: has this user already entered this campaign?
+        const q = query(
+            collection(db, `users/${userId}/serviceHistory`),
+            where('campaignId', '==', campaignId)
+        );
+        const existingEntry = await getDocs(q);
+        if (!existingEntry.empty) {
+            return { error: 'You have already entered this lucky draw.' };
+        }
+
+        const businessSnap = await getDoc(doc(db, 'businesses', businessId));
+        if (!businessSnap.exists()) {
+            return { error: "Business not found." };
+        }
+        const businessData = businessSnap.data();
+
+        // Record this as a "lead" activity in the user's history
+        const historyCollectionRef = collection(db, `users/${userId}/serviceHistory`);
+        await addDoc(historyCollectionRef, {
+            userId,
+            businessId,
+            campaignId,
+            businessName: businessData.name,
+            service: associatedService, // The service they are interested in
+            industry: businessData.industry,
+            date: new Date(),
+            status: 'Lead', // A new status to identify this as a lead
+            activityType: 'Lead',
+            isLead: true, // Specific flag for easy querying of all leads by admin
+            leadStatus: 'new', // Initial status for the lead funnel
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error creating lead from campaign:", error);
+        return { error: "Failed to record your entry." };
+    }
+}
 
 export async function deleteCampaign(campaignId: string) {
     if (!campaignId) {

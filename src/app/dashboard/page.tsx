@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from '@/hooks/use-session.tsx';
 import { useRouter } from 'next/navigation';
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -38,14 +38,16 @@ import {
   HandHeart,
   ScanLine,
   AlertTriangle,
+  Send,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getServiceHistory, recordShare, getAllActiveOffers, redeemOffer, getAllActiveCampaigns, getBusinesses } from '@/app/actions';
+import { getServiceHistory, recordShare, getAllActiveOffers, redeemOffer, getAllActiveCampaigns, getBusinesses, createLeadFromCampaign } from '@/app/actions';
 import { RealtimeNotifications } from '@/components/features/realtimenotifications';
 import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
 import { PromotionalFeed } from '@/components/features/promotional-feed';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import jsQR from 'jsqr';
 import { ServiceHistory } from '@/components/features/service-history';
@@ -83,6 +85,7 @@ interface Campaign {
   businessName: string;
   businessId: string;
   expiresAt: string;
+  associatedService?: string;
 }
 
 interface BusinessVideo {
@@ -121,6 +124,7 @@ export default function CustomerDashboard() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
 
   useEffect(() => {
@@ -223,6 +227,30 @@ export default function CustomerDashboard() {
     } finally {
         setLoading(false);
     }
+  };
+
+  const handleEnterDraw = async (campaign: Campaign) => {
+      if (!session?.userId) {
+          toast({ title: "Please log in", description: "You need to be logged in to enter a draw.", variant: 'destructive' });
+          return;
+      }
+      setIsSubmittingLead(true);
+      const result = await createLeadFromCampaign({
+          userId: session.userId,
+          campaignId: campaign.id,
+          businessId: campaign.businessId,
+          associatedService: campaign.associatedService || 'General Interest'
+      });
+      setIsSubmittingLead(false);
+
+      if (result.success) {
+          toast({
+              title: "You're in!",
+              description: "Your entry has been recorded. The clinic will be in touch if you win!",
+          });
+      } else {
+          toast({ title: "Error", description: result.error, variant: 'destructive' });
+      }
   };
 
   const fetchCampaigns = async () => {
@@ -524,6 +552,32 @@ export default function CustomerDashboard() {
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{campaign.description}</p>
+                       {campaign.associatedService && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm" variant="default" disabled={isSubmittingLead}>
+                                <Send className="mr-2 h-4 w-4"/>
+                                {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        You are expressing interest in{" "}
+                                        <span className="font-bold">{campaign.associatedService}</span> to enter the draw for a chance to win a <span className="font-bold">{campaign.reward}</span>.
+                                        This will create a lead for the clinic. Do you want to proceed?
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
+                                        {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                      )}
                     </div>
                   ))}
                 </div>
