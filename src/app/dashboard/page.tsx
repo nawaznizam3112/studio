@@ -47,7 +47,7 @@ import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
 import { PromotionalFeed } from '@/components/features/promotional-feed';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import jsQR from 'jsqr';
 import { ServiceHistory } from '@/components/features/service-history';
