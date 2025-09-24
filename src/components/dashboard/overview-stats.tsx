@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Megaphone, Target, Users } from "lucide-react";
+import { Handshake, Target, TrendingUp, Users } from "lucide-react";
 
 const stats = [
-    { title: "Total Entries", value: "1,482", icon: Users, change: "+15.2% from last month" },
-    { title: "Active Campaigns", value: "2", icon: Megaphone, change: "Running now" },
-    { title: "Engagement Rate", value: "27.5%", icon: Activity, change: "+3.1% from last week" },
-    { title: "New Leads", value: "45", icon: Target, change: "Generated this month" },
+    { title: "Leads Generated", value: "132", icon: Users, change: "+20% from last month", hint: "Total patients who showed interest." },
+    { title: "Qualified Leads", value: "95", icon: Target, change: "72% of total leads", hint: "Leads verified by your team." },
+    { title: "Conversion Rate", value: "48%", icon: Handshake, change: "+5% from last month", hint: "Percentage of leads that booked." },
+    { title: "Estimated ROI", value: "3.2x", icon: TrendingUp, change: "Based on your commission.", hint: "Return on your investment." },
 ];
 
 export function OverviewStats() {

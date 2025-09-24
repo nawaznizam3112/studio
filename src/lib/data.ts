@@ -95,13 +95,13 @@ export const winners: Winner[] = [
 ];
 
 export const engagementData: EngagementData[] = [
-  { date: 'Mon', entries: 20 },
-  { date: 'Tue', entries: 35 },
-  { date: 'Wed', entries: 28 },
-  { date: 'Thu', entries: 45 },
-  { date: 'Fri', entries: 50 },
-  { date: 'Sat', entries: 62 },
-  { date: 'Sun', entries: 48 },
+  { date: 'Mon', entries: 20, leads: 15 },
+  { date: 'Tue', entries: 35, leads: 28 },
+  { date: 'Wed', entries: 28, leads: 22 },
+  { date: 'Thu', entries: 45, leads: 38 },
+  { date: 'Fri', entries: 50, leads: 42 },
+  { date: 'Sat', entries: 62, leads: 55 },
+  { date: 'Sun', entries: 48, leads: 40 },
 ];
 
 export const patientHistory = `

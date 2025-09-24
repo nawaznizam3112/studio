@@ -13,7 +13,7 @@ export type Campaign = {
 
 export type Patient = {
   id: string;
-  name: string;
+  name:string;
   lastVisit: string;
   lastService: string;
 };
@@ -30,4 +30,5 @@ export type Winner = {
 export type EngagementData = {
   date: string;
   entries: number;
+  leads: number;
 };

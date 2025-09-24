@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Brush, Users, QrCode } from "lucide-react";
+import { Brush, Users, QrCode, ClipboardList } from "lucide-react";
 
 const actions = [
   {
@@ -12,15 +12,15 @@ const actions = [
   },
   {
     href: "/patients",
-    label: "Patient Follow-ups",
-    description: "Get AI suggestions for empty slots.",
+    label: "AI Patient Follow-ups",
+    description: "Get suggestions for empty slots.",
     icon: Users,
   },
   {
-    href: "/campaigns",
-    label: "Get QR Code",
-    description: "Share QR codes for campaign check-ins.",
-    icon: QrCode,
+    href: "/leads",
+    label: "Manage Leads",
+    description: "View and qualify new patient leads.",
+    icon: ClipboardList,
   },
 ];
 

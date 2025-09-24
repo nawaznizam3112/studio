@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -21,6 +20,7 @@ import {
   Trophy,
   Settings,
   LifeBuoy,
+  ClipboardList,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -28,9 +28,10 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 const menuItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/campaigns", label: "Campaigns", icon: Megaphone },
-  { href: "/marketing", label: "Marketing", icon: Brush },
+  { href: "/leads", label: "Leads", icon: ClipboardList },
   { href: "/patients", label: "Patients", icon: Users },
   { href: "/winners", label: "Winners", icon: Trophy },
+  { href: "/marketing", label: "Marketing", icon: Brush },
 ];
 
 export function AppSidebar() {
