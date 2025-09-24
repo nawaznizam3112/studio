@@ -2,9 +2,9 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { getAllChallenges, getBusinesses } from "@/app/actions";
-import { CreateChallengeForm } from "@/components/business/create-challenge-form";
-import { ChallengeList } from "@/components/business/challenge-list";
+import { getAllCampaigns, getBusinesses } from "@/app/actions";
+import { CreateCampaignForm } from "@/components/business/create-campaign-form";
+import { CampaignList } from "@/components/business/campaign-list";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -54,7 +54,7 @@ function CampaignsPageSkeleton() {
 }
 
 export default function AdminCampaignsPage() {
-    const [challenges, setChallenges] = useState<any[]>([]);
+    const [campaigns, setCampaigns] = useState<any[]>([]);
     const [businesses, setBusinesses] = useState<any[]>([]);
     const [selectedBusiness, setSelectedBusiness] = useState<string>('');
     const [loading, setLoading] = useState(true);
@@ -63,13 +63,13 @@ export default function AdminCampaignsPage() {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [challengesResult, businessesResult] = await Promise.all([
-                getAllChallenges(),
+            const [campaignsResult, businessesResult] = await Promise.all([
+                getAllCampaigns(),
                 getBusinesses()
             ]);
 
-            if (challengesResult.error) throw new Error(challengesResult.error);
-            setChallenges(challengesResult.challenges || []);
+            if (campaignsResult.error) throw new Error(campaignsResult.error);
+            setCampaigns(campaignsResult.campaigns || []);
 
             if (businessesResult.error) throw new Error(businessesResult.error);
             setBusinesses(businessesResult.businesses || []);
@@ -89,7 +89,7 @@ export default function AdminCampaignsPage() {
     }, []);
 
     const handleAction = () => {
-        // Refetch challenges after an action
+        // Refetch campaigns after an action
         fetchData();
     };
     
@@ -110,7 +110,6 @@ export default function AdminCampaignsPage() {
 
             <div className="grid gap-8 md:grid-cols-3">
                 <div className="md:col-span-1">
-                    {/* The existing CreateChallengeForm is business-specific, so we need to adapt it */}
                     <Card>
                         <CardHeader>
                             <CardTitle>New Lucky Draw Campaign</CardTitle>
@@ -131,9 +130,9 @@ export default function AdminCampaignsPage() {
                                 </Select>
                             </div>
                             {selectedBusiness ? (
-                                <CreateChallengeForm 
+                                <CreateCampaignForm 
                                     businessId={selectedBusiness} 
-                                    onChallengeCreated={handleAction} 
+                                    onCampaignCreated={handleAction} 
                                 />
                             ) : (
                                 <p className="text-center text-sm text-muted-foreground pt-4">Please select a business to create a campaign.</p>
@@ -143,7 +142,7 @@ export default function AdminCampaignsPage() {
                 </div>
 
                 <div className="md:col-span-2">
-                    <ChallengeList challenges={challenges} onAction={handleAction} />
+                    <CampaignList campaigns={campaigns} onAction={handleAction} />
                 </div>
             </div>
         </div>

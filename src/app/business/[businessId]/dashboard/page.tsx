@@ -2,7 +2,7 @@
 
 'use client';
 
-import { getBusinessCustomerHistory, getBusinessById, getChallengesForBusiness } from "@/app/actions";
+import { getBusinessCustomerHistory, getBusinessById, getCampaignsForBusiness } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -77,10 +77,10 @@ export default function BusinessDashboardPage() {
         }
 
         try {
-            const [businessResult, historyResult, challengesResult] = await Promise.all([
+            const [businessResult, historyResult, campaignsResult] = await Promise.all([
                 getBusinessById(businessId),
                 getBusinessCustomerHistory(businessId),
-                getChallengesForBusiness(businessId),
+                getCampaignsForBusiness(businessId),
             ]);
 
             if (businessResult.error || !businessResult.business) {
@@ -90,7 +90,7 @@ export default function BusinessDashboardPage() {
             setData({
                 business: businessResult.business,
                 initialHistory: historyResult.history || [],
-                initialChallenges: challengesResult.challenges || [],
+                initialCampaigns: campaignsResult.campaigns || [],
                 // Pass empty arrays for removed features
                 initialOffers: [],
                 initialServices: [],
@@ -123,7 +123,7 @@ export default function BusinessDashboardPage() {
     <DashboardClient 
       business={data.business}
       initialHistory={data.initialHistory}
-      initialChallenges={data.initialChallenges}
+      initialCampaigns={data.initialCampaigns}
       initialOffers={data.initialOffers}
       initialServices={data.initialServices}
       initialQuizzes={data.initialQuizzes}

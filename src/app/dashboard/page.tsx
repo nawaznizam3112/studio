@@ -40,7 +40,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getServiceHistory, recordShare, getAllActiveOffers, redeemOffer, getAllActiveChallenges, getBusinesses } from '@/app/actions';
+import { getServiceHistory, recordShare, getAllActiveOffers, redeemOffer, getAllActiveCampaigns, getBusinesses } from '@/app/actions';
 import { RealtimeNotifications } from '@/components/features/realtimenotifications';
 import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
@@ -75,7 +75,7 @@ interface Offer {
   expiresAt: string;
 }
 
-interface Challenge {
+interface Campaign {
   id: string;
   title: string;
   description: string;
@@ -105,7 +105,7 @@ export default function CustomerDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [scannedFeature, setScannedFeature] = useState<string | null>(null);
   const [showReward, setShowReward] = useState(false);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [rewards, setRewards] = useState<Offer[]>([]);
   const [showChatbot, setShowChatbot] = useState(false);
   const [serviceHistory, setServiceHistory] = useState<any[]>([]);
@@ -226,10 +226,10 @@ export default function CustomerDashboard() {
 
   const fetchCampaigns = async () => {
     try {
-      const { challenges } = await getAllActiveChallenges();
-      setChallenges(challenges || []); // Show all challenges
+      const { campaigns } = await getAllActiveCampaigns();
+      setCampaigns(campaigns || []); // Show all campaigns
     } catch (error) {
-      console.warn('Failed to fetch challenges:', error);
+      console.warn('Failed to fetch campaigns:', error);
     }
   };
 
@@ -399,9 +399,9 @@ export default function CustomerDashboard() {
           <h2 className="text-xl">{user.name}</h2>
           <div className="flex items-center justify-center space-x-2 mt-2">
             <Badge className="bg-yellow-500 text-black">{user.visits} Entries</Badge>
-            {challenges.length > 0 && (
+            {campaigns.length > 0 && (
               <span className="text-sm opacity-80">
-                in {challenges.length} active campaigns
+                in {campaigns.length} active campaigns
               </span>
             )}
           </div>
@@ -504,25 +504,25 @@ export default function CustomerDashboard() {
             )}
 
             {/* Active Campaigns */}
-            {challenges.length > 0 && (
+            {campaigns.length > 0 && (
               <Card className="p-4 border-primary">
                 <h3 className="mb-3 flex items-center">
                   <Target className="w-5 h-5 mr-2 text-primary" />
                   Active Campaigns
                 </h3>
                 <div className="space-y-4">
-                  {challenges.map((challenge) => (
-                    <div key={challenge.id} className="space-y-3 p-3 rounded-lg bg-background border">
+                  {campaigns.map((campaign) => (
+                    <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
                       <div className="flex justify-between items-start">
                          <div>
-                            <p className="font-semibold">{challenge.title}</p>
-                            <p className="text-xs text-muted-foreground">From {challenge.businessName}</p>
+                            <p className="font-semibold">{campaign.title}</p>
+                            <p className="text-xs text-muted-foreground">From {campaign.businessName}</p>
                          </div>
                         <Badge variant="default" className="text-base">
-                          Prize: {challenge.reward}
+                          Prize: {campaign.reward}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{challenge.description}</p>
+                      <p className="text-sm text-muted-foreground">{campaign.description}</p>
                     </div>
                   ))}
                 </div>

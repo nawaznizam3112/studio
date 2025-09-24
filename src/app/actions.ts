@@ -424,38 +424,38 @@ export async function recordShare(userId: string) {
 }
 
 
-export async function getAllActiveChallenges() {
+export async function getAllActiveCampaigns() {
     try {
         const now = new Date();
         const businessesSnapshot = await getDocs(collection(db, 'businesses'));
         const businessMap = new Map(businessesSnapshot.docs.map(doc => [doc.id, doc.data().name]));
 
-        const challengesQuery = query(collection(db, 'challenges'), where('status', '==', 'active'));
-        const challengesSnapshot = await getDocs(challengesQuery);
+        const campaignsQuery = query(collection(db, 'campaigns'), where('status', '==', 'active'));
+        const campaignsSnapshot = await getDocs(campaignsQuery);
         
-        const validChallenges: any[] = [];
-        for (const challengeDoc of challengesSnapshot.docs) {
-            const challengeData = challengeDoc.data();
+        const validCampaigns: any[] = [];
+        for (const campaignDoc of campaignsSnapshot.docs) {
+            const campaignData = campaignDoc.data();
             
-            if (challengeData.expiresAt && challengeData.expiresAt.toDate() > now) {
-                const businessName = businessMap.get(challengeData.businessId) || 'A business';
+            if (campaignData.expiresAt && campaignData.expiresAt.toDate() > now) {
+                const businessName = businessMap.get(campaignData.businessId) || 'A business';
                 
-                validChallenges.push({
-                    id: challengeDoc.id,
-                    title: challengeData.title,
-                    description: challengeData.description,
-                    reward: challengeData.reward,
+                validCampaigns.push({
+                    id: campaignDoc.id,
+                    title: campaignData.title,
+                    description: campaignData.description,
+                    reward: campaignData.reward,
                     businessName: businessName,
-                    businessId: challengeData.businessId,
-                    expiresAt: challengeData.expiresAt.toDate().toISOString(),
+                    businessId: campaignData.businessId,
+                    expiresAt: campaignData.expiresAt.toDate().toISOString(),
                 });
             }
         }
         
-        return { challenges: validChallenges };
+        return { campaigns: validCampaigns };
     } catch (error) {
-        console.error("Error fetching active challenges:", error);
-        return { challenges: [], error: 'Failed to fetch challenges.' };
+        console.error("Error fetching active campaigns:", error);
+        return { campaigns: [], error: 'Failed to fetch campaigns.' };
     }
 }
 
@@ -1238,15 +1238,15 @@ export async function sendBroadcastMessage(formData: FormData) {
 }
 
 
-const createChallengeSchema = z.object({
+const createCampaignSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   description: z.string().min(1, 'Description is required.'),
   reward: z.string().min(1, 'Reward is required.'),
   businessId: z.string().min(1),
 });
 
-export async function createChallenge(formData: FormData) {
-  const validatedFields = createChallengeSchema.safeParse({
+export async function createCampaign(formData: FormData) {
+  const validatedFields = createCampaignSchema.safeParse({
     title: formData.get('title'),
     description: formData.get('description'),
     reward: formData.get('reward'),
@@ -1260,84 +1260,84 @@ export async function createChallenge(formData: FormData) {
   const expiresAt = addDays(new Date(), 5);
 
   try {
-    await addDoc(collection(db, 'challenges'), {
+    await addDoc(collection(db, 'campaigns'), {
       ...validatedFields.data,
       status: 'active',
       createdAt: serverTimestamp(),
       expiresAt: Timestamp.fromDate(expiresAt),
     });
-    return { success: true, message: 'Challenge created successfully!' };
+    return { success: true, message: 'Campaign created successfully!' };
   } catch (error) {
-    console.error("Error creating challenge:", error);
-    return { error: 'Failed to create challenge.' };
+    console.error("Error creating campaign:", error);
+    return { error: 'Failed to create campaign.' };
   }
 }
 
-export async function getChallengesForBusiness(businessId: string) {
+export async function getCampaignsForBusiness(businessId: string) {
   if (!businessId) {
-    return { challenges: [], error: 'Business ID is required.' };
+    return { campaigns: [], error: 'Business ID is required.' };
   }
   try {
     const q = query(
-        collection(db, 'challenges'), 
+        collection(db, 'campaigns'), 
         where('businessId', '==', businessId)
     );
     const querySnapshot = await getDocs(q);
-    const challenges = querySnapshot.docs
+    const campaigns = querySnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() } as any))
-        .map(challenge => ({ 
-            id: challenge.id,
-            title: challenge.title,
-            description: challenge.description,
-            reward: challenge.reward,
-            status: challenge.status,
-            businessId: challenge.businessId,
-            winnerId: challenge.winnerId || null,
-            winnerName: challenge.winnerName || null,
-            drawDate: challenge.drawDate ? challenge.drawDate.toDate().toISOString() : null,
-            createdAt: challenge.createdAt ? challenge.createdAt.toDate().toISOString() : new Date().toISOString(),
-            expiresAt: challenge.expiresAt.toDate().toISOString(),
+        .map(campaign => ({ 
+            id: campaign.id,
+            title: campaign.title,
+            description: campaign.description,
+            reward: campaign.reward,
+            status: campaign.status,
+            businessId: campaign.businessId,
+            winnerId: campaign.winnerId || null,
+            winnerName: campaign.winnerName || null,
+            drawDate: campaign.drawDate ? campaign.drawDate.toDate().toISOString() : null,
+            createdAt: campaign.createdAt ? campaign.createdAt.toDate().toISOString() : new Date().toISOString(),
+            expiresAt: campaign.expiresAt.toDate().toISOString(),
         }));
 
-    return { challenges };
+    return { campaigns };
   } catch (error) {
-    console.error("Error fetching challenges:", error);
-    return { challenges: [], error: 'Failed to fetch challenges.' };
+    console.error("Error fetching campaigns:", error);
+    return { campaigns: [], error: 'Failed to fetch campaigns.' };
   }
 }
 
-export async function getAllChallenges() {
+export async function getAllCampaigns() {
     try {
         const businessesSnapshot = await getDocs(collection(db, 'businesses'));
         const businessMap = new Map(businessesSnapshot.docs.map(doc => [doc.id, doc.data().name]));
 
-        const challengesQuery = query(collection(db, 'challenges'), orderBy('createdAt', 'desc'));
-        const challengesSnapshot = await getDocs(challengesQuery);
+        const campaignsQuery = query(collection(db, 'campaigns'), orderBy('createdAt', 'desc'));
+        const campaignsSnapshot = await getDocs(campaignsQuery);
         
-        const allChallenges = challengesSnapshot.docs.map(challengeDoc => {
-            const challengeData = challengeDoc.data();
-            const businessName = businessMap.get(challengeData.businessId) || 'Unknown Business';
+        const allCampaigns = campaignsSnapshot.docs.map(campaignDoc => {
+            const campaignData = campaignDoc.data();
+            const businessName = businessMap.get(campaignData.businessId) || 'Unknown Business';
 
             return {
-                id: challengeDoc.id,
-                title: challengeData.title,
-                description: challengeData.description,
-                reward: challengeData.reward,
-                status: challengeData.status,
-                businessId: challengeData.businessId,
+                id: campaignDoc.id,
+                title: campaignData.title,
+                description: campaignData.description,
+                reward: campaignData.reward,
+                status: campaignData.status,
+                businessId: campaignData.businessId,
                 businessName: businessName,
-                winnerId: challengeData.winnerId || null,
-                winnerName: challengeData.winnerName || null,
-                drawDate: challengeData.drawDate ? challengeData.drawDate.toDate().toISOString() : null,
-                createdAt: challengeData.createdAt ? challengeData.createdAt.toDate().toISOString() : new Date().toISOString(),
-                expiresAt: challengeData.expiresAt.toDate().toISOString(),
+                winnerId: campaignData.winnerId || null,
+                winnerName: campaignData.winnerName || null,
+                drawDate: campaignData.drawDate ? campaignData.drawDate.toDate().toISOString() : null,
+                createdAt: campaignData.createdAt ? campaignData.createdAt.toDate().toISOString() : new Date().toISOString(),
+                expiresAt: campaignData.expiresAt.toDate().toISOString(),
             };
         });
         
-        return { challenges: allChallenges };
+        return { campaigns: allCampaigns };
     } catch (error) {
-        console.error("Error fetching all challenges:", error);
-        return { challenges: [], error: 'Failed to fetch challenges.' };
+        console.error("Error fetching all campaigns:", error);
+        return { campaigns: [], error: 'Failed to fetch campaigns.' };
     }
 }
 
@@ -1348,7 +1348,7 @@ export async function runLuckyDraw(campaignId: string, businessId: string): Prom
     }
 
     try {
-        const campaignRef = doc(db, 'challenges', campaignId);
+        const campaignRef = doc(db, 'campaigns', campaignId);
         const campaignSnap = await getDoc(campaignRef);
 
         if (!campaignSnap.exists()) {
@@ -1404,16 +1404,16 @@ export async function runLuckyDraw(campaignId: string, businessId: string): Prom
 }
 
 
-export async function deleteChallenge(challengeId: string) {
-    if (!challengeId) {
-        return { error: 'Challenge ID is missing.' };
+export async function deleteCampaign(campaignId: string) {
+    if (!campaignId) {
+        return { error: 'Campaign ID is missing.' };
     }
     try {
-        await deleteDoc(doc(db, 'challenges', challengeId));
-        return { success: true, message: 'Challenge deleted.' };
+        await deleteDoc(doc(db, 'campaigns', campaignId));
+        return { success: true, message: 'Campaign deleted.' };
     } catch (error) {
-        console.error("Error deleting challenge:", error);
-        return { error: 'Failed to delete challenge.' };
+        console.error("Error deleting campaign:", error);
+        return { error: 'Failed to delete campaign.' };
     }
 }
 

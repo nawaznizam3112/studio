@@ -8,8 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { QRCodeDialog } from "@/components/admin/qr-code-dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreateChallengeForm } from "@/components/business/create-challenge-form";
-import { ChallengeList } from "@/components/business/challenge-list";
+import { CreateCampaignForm } from "@/components/business/create-campaign-form";
+import { CampaignList } from "@/components/business/campaign-list";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getChallengesForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage } from "@/app/actions";
+import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage } from "@/app/actions";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { ProfileEditor } from "./profile-editor";
 import { useToast } from "@/hooks/use-toast";
@@ -55,7 +55,7 @@ interface Business {
 interface DashboardClientProps {
     business: Business;
     initialHistory: any[];
-    initialChallenges: any[];
+    initialCampaigns: any[];
     initialOffers: any[];
     initialServices: any[];
     initialQuizzes: any[];
@@ -104,7 +104,7 @@ const getLeadStatusBadge = (status: string) => {
 export function DashboardClient({ 
     business: initialBusiness, 
     initialHistory,
-    initialChallenges,
+    initialCampaigns,
     initialOffers,
     initialServices,
     initialQuizzes,
@@ -119,7 +119,7 @@ export function DashboardClient({
 
   const [business, setBusiness] = useState<Business>(initialBusiness);
   const [history, setHistory] = useState<any[]>(initialHistory);
-  const [challenges, setChallenges] = useState<any[]>(initialChallenges);
+  const [campaigns, setCampaigns] = useState<any[]>(initialCampaigns);
   const [error, setError] = useState<string | null>(null);
   const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
   const broadcastFormRef = useRef<HTMLFormElement>(null);
@@ -129,14 +129,14 @@ export function DashboardClient({
     if (!session) return;
     setError(null);
     try {
-      const [challengesResult, businessResult, historyResult] = await Promise.all([
-        getChallengesForBusiness(businessId),
+      const [campaignsResult, businessResult, historyResult] = await Promise.all([
+        getCampaignsForBusiness(businessId),
         getBusinessById(businessId),
         getBusinessCustomerHistory(businessId),
       ]);
 
-      if (challengesResult.error) throw new Error(challengesResult.error);
-      setChallenges(challengesResult.challenges || []);
+      if (campaignsResult.error) throw new Error(campaignsResult.error);
+      setCampaigns(campaignsResult.campaigns || []);
       
       if (businessResult.error) throw new Error(businessResult.error);
       if(businessResult.business) setBusiness(businessResult.business as Business);
@@ -420,10 +420,10 @@ export function DashboardClient({
                 <TabsContent value="campaigns" className="mt-6">
                    <div className="grid gap-8 md:grid-cols-3">
                         <div className="md:col-span-1">
-                           <CreateChallengeForm businessId={businessId} onChallengeCreated={refreshData} />
+                           <CreateCampaignForm businessId={businessId} onCampaignCreated={refreshData} />
                         </div>
                         <div className="md:col-span-2">
-                            <ChallengeList challenges={challenges} onAction={refreshData} />
+                            <CampaignList campaigns={campaigns} onAction={refreshData} />
                         </div>
                     </div>
                 </TabsContent>
