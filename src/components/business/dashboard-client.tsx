@@ -38,6 +38,8 @@ import { CustomerChart } from "./customer-chart";
 import { Textarea } from "../ui/textarea";
 import { UpdateVisitDialog } from "./update-visit-dialog";
 import { LeadList } from "./lead-list";
+import { CreateServiceForm } from "./create-service-form";
+import { ServiceList } from "./service-list";
 
 interface Business {
     id: string;
@@ -279,6 +281,7 @@ export function DashboardClient({
                 <ScrollArea className="w-full whitespace-nowrap">
                     <TabsList className="inline-flex w-max">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
+                        <TabsTrigger value="services">Services</TabsTrigger>
                         <TabsTrigger value="campaigns">Lucky Draw</TabsTrigger>
                         <TabsTrigger value="profile">Clinic Profile</TabsTrigger>
                     </TabsList>
@@ -414,6 +417,23 @@ export function DashboardClient({
                             </Table>
                         </CardContent>
                     </Card>
+                </TabsContent>
+                <TabsContent value="services" className="mt-6">
+                   <div className="grid gap-8 md:grid-cols-3">
+                        <div className="md:col-span-1">
+                            <CreateServiceForm 
+                                businessId={businessId} 
+                                onServiceCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <ServiceList 
+                                services={services} 
+                                businessId={businessId} 
+                                onServiceDeleted={refreshData} 
+                            />
+                        </div>
+                    </div>
                 </TabsContent>
                 <TabsContent value="profile" className="mt-6">
                     <ProfileEditor business={business} onProfileUpdated={refreshData} />
