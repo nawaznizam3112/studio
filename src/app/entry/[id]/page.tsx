@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, CheckCircle, Gift, Share2, Copy } from 'lucide-react';
 import { campaigns } from '@/lib/data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { createLead } from '@/ai/flows/create-lead';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Please enter your name.' }),
@@ -46,15 +47,32 @@ export default function EntryPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log(values);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast({
-      title: 'Entry Confirmed!',
-      description: "You're now in the draw. Good luck!",
-    });
-    setIsSubmitted(true);
-    setIsLoading(false);
+    if (!campaign) return;
+
+    try {
+      const result = await createLead({
+        campaignId: campaign.id,
+        ...values,
+      });
+
+      console.log('Lead created:', result);
+
+      toast({
+        title: 'Entry Confirmed!',
+        description: "You're now in the draw. Good luck!",
+      });
+      setIsSubmitted(true);
+
+    } catch (error) {
+      console.error('Error creating lead:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: 'There was a problem submitting your entry. Please try again.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const handleCopyReferral = () => {
