@@ -564,8 +564,8 @@ export default function CustomerDashboard() {
                                 <AlertDialogHeader>
                                     <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        You are expressing interest in{" "}
-                                        <span className="font-bold">{campaign.associatedService}</span> to enter the draw for a chance to win a <span className="font-bold">{campaign.reward}</span>.
+                                        To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
+                                        <div className="my-4 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService}</div>
                                         This will create a lead for the clinic. Do you want to proceed?
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>

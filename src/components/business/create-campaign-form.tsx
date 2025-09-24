@@ -85,18 +85,17 @@ export function CreateCampaignForm({ businessId, onCampaignCreated }: CreateCamp
             </div>
             <div className="space-y-2">
                 <Label htmlFor="associatedService">Associated Service (for Lead Gen)</Label>
-                <Select name="associatedService">
+                <Select name="associatedService" required>
                     <SelectTrigger id="associatedService" disabled={loadingServices}>
                         <SelectValue placeholder={loadingServices ? "Loading services..." : "Select a service..."} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="none">None (For existing customers)</SelectItem>
                         {services.map(service => (
                             <SelectItem key={service.id} value={service.name}>{service.name}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">Select a service to attract new leads for it.</p>
+                <p className="text-xs text-muted-foreground">Selecting a service is required to create a lead generation campaign.</p>
             </div>
             <SubmitButton />
         </form>
