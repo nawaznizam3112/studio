@@ -56,7 +56,7 @@ function CampaignsPageSkeleton() {
 export default function AdminCampaignsPage() {
     const [campaigns, setCampaigns] = useState<any[]>([]);
     const [businesses, setBusinesses] = useState<any[]>([]);
-    const [selectedBusiness, setSelectedBusiness] = useState<string>(''); // Empty string means platform campaign
+    const [selectedBusiness, setSelectedBusiness] = useState<string>('platform'); // 'platform' means platform campaign
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -98,6 +98,8 @@ export default function AdminCampaignsPage() {
         return <p className="text-destructive">Error: {error}</p>;
     }
 
+    const businessIdForForm = selectedBusiness === 'platform' ? undefined : selectedBusiness;
+
     return (
         <div className="space-y-6">
             <div>
@@ -120,7 +122,7 @@ export default function AdminCampaignsPage() {
                                         <SelectValue placeholder="Select a business..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">None (Platform Campaign)</SelectItem>
+                                        <SelectItem value="platform">None (Platform Campaign)</SelectItem>
                                         {businesses.map(b => (
                                             <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                                         ))}
@@ -128,7 +130,7 @@ export default function AdminCampaignsPage() {
                                 </Select>
                             </div>
                             <CreateCampaignForm 
-                                businessId={selectedBusiness || undefined}
+                                businessId={businessIdForForm}
                                 onCampaignCreated={handleAction} 
                             />
                         </CardContent>
