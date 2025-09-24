@@ -85,21 +85,6 @@ const getStatusBadge = (status: string) => {
     }
 };
 
-const getLeadStatusBadge = (status: string) => {
-    switch (status) {
-        case 'new':
-            return <Badge variant="secondary" className="bg-blue-100 text-blue-700"><UserPlus className="mr-1 h-3 w-3" />New</Badge>;
-        case 'qualified':
-            return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700"><UserCheck className="mr-1 h-3 w-3" />Qualified</Badge>;
-        case 'converted':
-            return <Badge variant="secondary" className="bg-green-100 text-green-700"><CheckCircle className="mr-1 h-3 w-3" />Converted</Badge>;
-        case 'lost':
-            return <Badge variant="destructive"><UserX className="mr-1 h-3 w-3" />Lost</Badge>;
-        default:
-            return <Badge variant="outline">{status}</Badge>;
-    }
-};
-
 
 export function DashboardClient({ 
     business: initialBusiness, 
@@ -230,17 +215,33 @@ export function DashboardClient({
     }
 
     const leads = useMemo(() => {
-        const leadActivities = history.filter(item => item.activityType === 'Lead' || (item.preConsultationNotes && !item.service.includes('Booked')));
-        return leadActivities.map(item => ({
-            id: item.id,
-            name: item.userName,
-            phone: item.userPhone,
-            email: item.userEmail,
-            serviceInterest: item.service,
-            status: item.leadStatus || 'new', // The spec mentions new, qualified, converted, lost
-            date: item.date,
-            campaign: 'Direct QR Scan' // Mock data
-        }));
+        // This logic correctly identifies leads from the general activity history.
+        const leadActivities = history.filter(item => 
+            item.activityType === 'Lead' || 
+            item.activityType === 'Booking' || // Bookings are also leads
+            (item.preConsultationNotes && item.activityType === 'Check-in' && !item.service.toLowerCase().includes('booked'))
+        );
+        
+        // Deduplicate by user to represent unique leads
+        const uniqueLeads = new Map();
+        leadActivities.forEach(item => {
+             // A more specific lead identifier could be a combination of user and campaign/service
+            const leadId = `${item.userId}-${item.service}`;
+            if (!uniqueLeads.has(leadId)) {
+                 uniqueLeads.set(leadId, {
+                    id: item.id, // Use the history item id as the lead id
+                    name: item.userName,
+                    phone: item.userPhone,
+                    email: item.userEmail,
+                    serviceInterest: item.service,
+                    status: item.leadStatus || 'new', // Default to 'new' if not set
+                    date: item.date,
+                    source: item.campaign || 'Direct Check-in', // Use campaign if available
+                });
+            }
+        });
+        
+        return Array.from(uniqueLeads.values());
     }, [history]);
 
 
@@ -274,7 +275,7 @@ export function DashboardClient({
                 <ScrollArea className="w-full whitespace-nowrap">
                     <TabsList className="inline-flex w-max">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
-                        <TabsTrigger value="leads">Leads</TabsTrigger>
+                        <TabsTrigger value="leads">Leads ({leads.length})</TabsTrigger>
                         <TabsTrigger value="campaigns">Lucky Draw</TabsTrigger>
                         <TabsTrigger value="profile">Clinic Profile</TabsTrigger>
                     </TabsList>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, UserPlus, UserCheck, CheckCircle, UserX } from "lucide-react";
+import { MoreVertical, UserPlus, UserCheck, CheckCircle, UserX, Star } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,7 +27,7 @@ interface Lead {
     serviceInterest: string;
     status: 'new' | 'qualified' | 'converted' | 'lost';
     date: string;
-    campaign: string;
+    source: string;
 }
 
 interface LeadListProps {
@@ -62,15 +62,14 @@ export function LeadList({ leads, onAction }: LeadListProps) {
         <Card>
             <CardHeader>
                 <CardTitle>Patient Leads</CardTitle>
-                <CardDescription>Patients who have shown interest by entering a lucky draw.</CardDescription>
+                <CardDescription>Patients who have shown interest by checking in or entering a campaign.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Patient</TableHead>
-                            <TableHead>Treatment Interest</TableHead>
-                            <TableHead>Campaign</TableHead>
+                            <TableHead>Interest / Source</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
@@ -83,8 +82,10 @@ export function LeadList({ leads, onAction }: LeadListProps) {
                                     <div className="font-medium">{lead.name}</div>
                                     <div className="text-xs text-muted-foreground">{lead.phone || lead.email}</div>
                                 </TableCell>
-                                <TableCell>{lead.serviceInterest}</TableCell>
-                                <TableCell>{lead.campaign}</TableCell>
+                                <TableCell>
+                                    <div>{lead.serviceInterest}</div>
+                                    <div className="text-xs text-muted-foreground">via {lead.source}</div>
+                                </TableCell>
                                 <TableCell>{lead.date}</TableCell>
                                 <TableCell>{getLeadStatusBadge(lead.status)}</TableCell>
                                 <TableCell className="text-right">
@@ -104,8 +105,8 @@ export function LeadList({ leads, onAction }: LeadListProps) {
                                                     <DropdownMenuRadioGroup value={lead.status} onValueChange={(newStatus) => handleStatusChange(lead.id, newStatus as Lead['status'])}>
                                                         <DropdownMenuRadioItem value="new">New</DropdownMenuRadioItem>
                                                         <DropdownMenuRadioItem value="qualified">Qualified</DropdownMenuRadioItem>
-                                                        <DropdownMenuRadioItem value="converted">Converted</"DropdownMenuRadioItem>
-                                                        <DropdownMenuRadioItem value="lost">Lost</"DropdownMenuRadioItem>
+                                                        <DropdownMenuRadioItem value="converted">Converted</DropdownMenuRadioItem>
+                                                        <DropdownMenuRadioItem value="lost">Lost</DropdownMenuRadioItem>
                                                     </DropdownMenuRadioGroup>
                                                 </DropdownMenuSubContent>
                                                 </DropdownMenuPortal>
@@ -118,7 +119,13 @@ export function LeadList({ leads, onAction }: LeadListProps) {
                             </TableRow>
                         )) : (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center">No leads yet. Share your campaigns to get started!</TableCell>
+                                <TableCell colSpan={5} className="h-24 text-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <Star className="w-8 h-8 text-muted-foreground/50" />
+                                        <p>No leads yet.</p>
+                                        <p className="text-xs text-muted-foreground">New leads from campaigns and check-ins will appear here.</p>
+                                    </div>
+                                </TableCell>
                             </TableRow>
                         )}
                     </TableBody>
