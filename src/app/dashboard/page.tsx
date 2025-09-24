@@ -45,14 +45,15 @@ import { RealtimeNotifications } from '@/components/features/realtimenotificatio
 import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
 import { PromotionalFeed } from '@/components/features/promotional-feed';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import jsQR from 'jsqr';
 import { ServiceHistory } from '@/components/features/service-history';
 import { Feedback } from '@/components/features/feedback';
 import { PendingConfirmationCard } from '@/components/features/pending-confirmation-card';
 import Image from 'next/image';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 
 interface User {
@@ -380,15 +381,15 @@ export default function CustomerDashboard() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-0 sm:space-x-2">
             <Button 
               onClick={() => router.push('/')}
               variant="ghost" 
               size="sm"
               className="text-white hover:bg-white/20"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Home
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Home</span>
             </Button>
             <Button 
               onClick={handleSignOut}
@@ -400,12 +401,12 @@ export default function CustomerDashboard() {
             </Button>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <Button
               onClick={refreshUserData}
               variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20"
+              size="icon"
+              className="text-white hover:bg-white/20 h-8 w-8"
               disabled={isRefreshing}
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -436,7 +437,7 @@ export default function CustomerDashboard() {
             )}
           </div>
           
-          <div className="flex justify-center space-x-6 mt-4 text-sm">
+          <div className="flex justify-center space-x-4 sm:space-x-6 mt-4 text-sm">
             <div>
               <div className="font-semibold">{user.visits}</div>
               <div className="opacity-80">Visits</div>
@@ -454,16 +455,19 @@ export default function CustomerDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="p-4">
+      <div className="p-2 sm:p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="home">Home</TabsTrigger>
-            <TabsTrigger value="explore">Explore</TabsTrigger>
-            <TabsTrigger value="entries">My Entries</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-          </TabsList>
+            <ScrollArea>
+              <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="home">Home</TabsTrigger>
+                  <TabsTrigger value="explore">Explore</TabsTrigger>
+                  <TabsTrigger value="entries">My Entries</TabsTrigger>
+                  <TabsTrigger value="profile">Profile</TabsTrigger>
+              </TabsList>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
 
-          <TabsContent value="home" className="space-y-4">
+          <TabsContent value="home" className="space-y-4 mt-4">
 
             {pendingVisits.map(visit => (
                 <PendingConfirmationCard 
@@ -480,14 +484,14 @@ export default function CustomerDashboard() {
             
             {/* Quick Actions */}
             <Card className="p-4">
-              <h3 className="mb-3 flex items-center">
+              <h3 className="mb-3 flex items-center text-base font-semibold">
                 <Zap className="w-5 h-5 mr-2 text-yellow-500" />
                 Quick Actions
               </h3>
               <div className="grid grid-cols-2 gap-3">
                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="h-16 bg-blue-600 hover:bg-blue-700">
+                    <Button className="h-16 bg-blue-600 hover:bg-blue-700 text-base">
                       <QrCode className="w-5 h-5 mr-2" />
                       Clinic Check-in
                     </Button>
@@ -520,7 +524,7 @@ export default function CustomerDashboard() {
 
                 <Button 
                   variant="outline"
-                  className="h-16"
+                  className="h-16 text-base"
                    onClick={() => setActiveTab('entries')}
                 >
                   <Trophy className="w-5 h-5 mr-2" />
@@ -536,7 +540,7 @@ export default function CustomerDashboard() {
             {/* Active Campaigns */}
             {campaigns.length > 0 && (
               <Card className="p-4 border-primary">
-                <h3 className="mb-3 flex items-center">
+                <h3 className="mb-3 flex items-center font-semibold text-base">
                   <Target className="w-5 h-5 mr-2 text-primary" />
                   Active Campaigns
                 </h3>
@@ -559,117 +563,7 @@ export default function CustomerDashboard() {
                             <p className="font-semibold">{campaign.title}</p>
                             <p className="text-xs text-muted-foreground">From {campaign.businessName}</p>
                          </div>
-                        <Badge variant="default" className="text-base">
-                          Prize: {campaign.reward}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{campaign.description}</p>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="default" disabled={isSubmittingLead}>
-                              <Send className="mr-2 h-4 w-4"/>
-                              {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                            <AlertDialogDescription>
-                                This will create a lead for the clinic. Do you want to proceed?
-                            </AlertDialogDescription>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-            
-          </TabsContent>
-
-          <TabsContent value="explore" className="space-y-4">
-            <Card className="p-4">
-              <h3 className="mb-3 flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-primary" />
-                Nearby Clinics
-              </h3>
-              <div className="space-y-3">
-                {nearbyBusinesses.map((business) => (
-                  <Button 
-                    key={business.id}
-                    onClick={() => router.push(`/business/${business.id}`)}
-                    variant="outline"
-                    className="w-full h-20 flex items-center justify-between p-4"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                         {getIndustryIcon(business.industry)}
-                      </div>
-                      <div className="text-left">
-                        <p className="font-medium">{business.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {business.distance} • {business.rating}★ • {business.isOpen ? 'Open' : 'Closed'}
-                        </p>
-                        {business.specialOffer && (
-                          <p className="text-xs text-green-600 font-medium">
-                            🎁 {business.specialOffer}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <ExternalLink className="w-5 h-5 text-gray-400" />
-                  </Button>
-                ))}
-              </div>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="entries" className="space-y-4">
-            <Card className="p-4 text-center">
-              <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
-                <Trophy className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="">{user.visits.toLocaleString()} Entries</h3>
-              <p className="text-sm text-muted-foreground">Your total entries in active campaigns.</p>
-            </Card>
-
-            {campaigns.length > 0 && (
-              <Card className="p-4 border-primary">
-                <h3 className="mb-3 flex items-center">
-                  <Target className="w-5 h-5 mr-2 text-primary" />
-                  Active Campaigns
-                </h3>
-                <div className="space-y-4">
-                  {campaigns.map((campaign) => (
-                    <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
-                      {campaign.prizeImageUrl && (
-                          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                            <Image
-                              src={campaign.prizeImageUrl}
-                              alt={campaign.reward}
-                              fill
-                              className="object-cover"
-                              data-ai-hint="reward prize"
-                            />
-                          </div>
-                       )}
-                      <div className="flex justify-between items-start">
-                         <div>
-                            <p className="font-semibold">{campaign.title}</p>
-                            <p className="text-xs text-muted-foreground">From {campaign.businessName}</p>
-                         </div>
-                        <Badge variant="default" className="text-base">
+                        <Badge variant="default" className="text-sm">
                           Prize: {campaign.reward}
                         </Badge>
                       </div>
@@ -705,20 +599,130 @@ export default function CustomerDashboard() {
                 </div>
               </Card>
             )}
+            
+          </TabsContent>
+
+          <TabsContent value="explore" className="space-y-4 mt-4">
+            <Card className="p-4">
+              <h3 className="mb-3 flex items-center text-base font-semibold">
+                <MapPin className="w-5 h-5 mr-2 text-primary" />
+                Nearby Clinics
+              </h3>
+              <div className="space-y-3">
+                {nearbyBusinesses.map((business) => (
+                  <Button 
+                    key={business.id}
+                    onClick={() => router.push(`/business/${business.id}`)}
+                    variant="outline"
+                    className="w-full h-auto flex items-center justify-between p-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                         {getIndustryIcon(business.industry)}
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium">{business.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {business.distance} • {business.rating}★ • {business.isOpen ? 'Open' : 'Closed'}
+                        </p>
+                        {business.specialOffer && (
+                          <p className="text-xs text-green-600 font-medium">
+                            🎁 {business.specialOffer}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <ExternalLink className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  </Button>
+                ))}
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="entries" className="space-y-4 mt-4">
+            <Card className="p-4 text-center">
+              <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
+                <Trophy className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold">{user.visits.toLocaleString()} Entries</h3>
+              <p className="text-sm text-muted-foreground">Your total entries in active campaigns.</p>
+            </Card>
+
+            {campaigns.length > 0 && (
+              <Card className="p-4 border-primary">
+                <h3 className="mb-3 flex items-center font-semibold text-base">
+                  <Target className="w-5 h-5 mr-2 text-primary" />
+                  Active Campaigns
+                </h3>
+                <div className="space-y-4">
+                  {campaigns.map((campaign) => (
+                    <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
+                      {campaign.prizeImageUrl && (
+                          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                            <Image
+                              src={campaign.prizeImageUrl}
+                              alt={campaign.reward}
+                              fill
+                              className="object-cover"
+                              data-ai-hint="reward prize"
+                            />
+                          </div>
+                       )}
+                      <div className="flex justify-between items-start">
+                         <div>
+                            <p className="font-semibold">{campaign.title}</p>
+                            <p className="text-xs text-muted-foreground">From {campaign.businessName}</p>
+                         </div>
+                        <Badge variant="default" className="text-sm">
+                          Prize: {campaign.reward}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{campaign.description}</p>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="default" disabled={isSubmittingLead}>
+                              <Send className="mr-2 h-4 w-4"/>
+                              {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
+                            </AlertDialogHeader>
+                                <AlertDialogDescription>
+                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
+                                </AlertDialogDescription>
+                            <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
+                                <AlertDialogDescription>
+                                    This will create a lead for the clinic. Do you want to proceed?
+                                </AlertDialogDescription>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
+                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
 
             <ServiceHistory serviceHistory={serviceHistory} />
             
           </TabsContent>
 
-          <TabsContent value="profile" className="space-y-4">
+          <TabsContent value="profile" className="space-y-4 mt-4">
             <Card className="p-4">
-              <h3 className="mb-3 flex items-center">
+              <h3 className="mb-3 flex items-center font-semibold text-base">
                 <Trophy className="w-5 h-5 mr-2 text-yellow-500" />
                 Achievements ({user.achievements?.length || 0})
               </h3>
               <div className="grid grid-cols-2 gap-2">
                 {user.achievements?.map((achievement, index) => (
-                  <Badge key={index} variant="secondary" className="justify-center py-2">
+                  <Badge key={index} variant="secondary" className="justify-center py-2 text-center">
                     <Crown className="w-3 h-3 mr-1" />
                     {achievement}
                   </Badge>
@@ -729,7 +733,7 @@ export default function CustomerDashboard() {
             <Feedback />
 
             <Card className="p-4">
-              <h3 className="mb-3 flex items-center">
+              <h3 className="mb-3 flex items-center font-semibold text-base">
                 <Settings className="w-5 h-5 mr-2 text-gray-500" />
                 Account
               </h3>
@@ -760,5 +764,3 @@ export default function CustomerDashboard() {
     </div>
   );
 }
-
-    

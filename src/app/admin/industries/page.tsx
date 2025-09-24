@@ -18,12 +18,12 @@ export default async function IndustriesPage() {
                 <p className="text-muted-foreground">Add new business industries to the platform.</p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                <div className="lg:col-span-1">
                     <CreateIndustryForm />
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                     <Card>
                         <CardHeader>
                             <CardTitle>Existing Industries</CardTitle>

@@ -12,8 +12,8 @@ import { Label } from "@/components/ui/label";
 
 function CampaignsPageSkeleton() {
     return (
-        <div className="grid gap-8 md:grid-cols-3">
-            <div className="md:col-span-1 space-y-4">
+        <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+            <div className="lg:col-span-1 space-y-4">
                 <Card>
                     <CardHeader>
                         <Skeleton className="h-6 w-3/4" />
@@ -36,7 +36,7 @@ function CampaignsPageSkeleton() {
                     </CardContent>
                 </Card>
             </div>
-            <div className="md:col-span-2">
+            <div className="lg:col-span-2">
                 <Card>
                     <CardHeader>
                         <Skeleton className="h-6 w-1/2" />
@@ -76,7 +76,7 @@ export default function AdminCampaignsPage() {
             const biz = businessesResult.businesses || [];
             setBusinesses(biz);
 
-        } catch (e: any) {
+        } catch (e: any) => {
             setError(e.message);
         }
         setLoading(false);
@@ -107,8 +107,8 @@ export default function AdminCampaignsPage() {
                 <p className="text-muted-foreground">Create and manage lucky draw campaigns for all businesses.</p>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3">
-                <div className="md:col-span-1">
+            <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                <div className="lg:col-span-1">
                     <Card>
                         <CardHeader>
                             <CardTitle>New Lucky Draw Campaign</CardTitle>
@@ -137,7 +137,7 @@ export default function AdminCampaignsPage() {
                     </Card>
                 </div>
 
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                     <CampaignList campaigns={campaigns} onAction={handleAction} />
                 </div>
             </div>

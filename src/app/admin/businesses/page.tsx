@@ -22,7 +22,7 @@ function BusinessesPageSkeleton() {
                     <Skeleton className="h-8 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-1/2" />
                 </div>
-                <div className="p-6 border rounded-lg">
+                <div className="p-4 sm:p-6 border rounded-lg">
                     <div className="grid gap-6 md:grid-cols-2">
                         {[...Array(6)].map((_, i) => (
                             <div key={i} className="space-y-2">
@@ -34,7 +34,7 @@ function BusinessesPageSkeleton() {
                 </div>
             </div>
             {/* Skeleton for Business List */}
-            <div className="p-6 border rounded-lg">
+            <div className="p-4 sm:p-6 border rounded-lg">
                  <div className="space-y-2 mb-4">
                     <Skeleton className="h-6 w-1/4" />
                     <Skeleton className="h-4 w-1/2" />

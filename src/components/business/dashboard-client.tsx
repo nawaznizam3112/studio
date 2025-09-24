@@ -1,5 +1,4 @@
 
-
 'use client';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -262,7 +261,7 @@ export function DashboardClient({
                 <Button variant="outline" onClick={handleLogout} size="sm"><LogOut className="mr-0 sm:mr-2 h-4 w-4" /><span className="hidden sm:inline">Logout</span></Button>
             </div>
         </header>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 p-2 sm:p-4 md:p-6 lg:p-8">
             <div className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Welcome, {business.name}!</h2>
@@ -288,7 +287,7 @@ export function DashboardClient({
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
                 <TabsContent value="overview" className="mt-6 space-y-6">
-                  <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
                      <Card>
                         <CardHeader>
                             <div className="flex items-center gap-4">
@@ -349,84 +348,87 @@ export function DashboardClient({
                             <CardDescription>A complete log of all patient check-ins and payments.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                           <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Patient</TableHead>
-                                        <TableHead>Token</TableHead>
-                                        <TableHead>Activity</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Details</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {history.length > 0 ? history.map((h: any, index: number) => (
-                                        <TableRow key={index}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <Avatar>
-                                                        <AvatarFallback>{getInitials(h.userName)}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <p className="font-medium">{h.userName}</p>
-                                                        <p className="text-xs text-muted-foreground">{h.userPhone || h.userEmail}</p>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary">{h.token ? `#${h.token}` : '-'}</Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant={h.activityType === 'Feedback' ? 'secondary' : 'default'}>
-                                                    {h.activityType}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                {getStatusBadge(h.status || 'Completed')}
-                                            </TableCell>
-                                            <TableCell className="max-w-xs truncate">
-                                                <p>{h.service}</p>
-                                                {h.notes && <p className="text-xs text-muted-foreground italic">"{h.notes}"</p>}
-                                                {h.quizResults && <p className="text-xs text-muted-foreground">Quiz completed</p>}
-                                            </TableCell>
-                                            <TableCell>
-                                                {h.expense && h.expense.amount ? `₹${h.expense.amount.toFixed(2)}` : '-'}
-                                            </TableCell>
-                                            <TableCell>{h.date}</TableCell>
-                                            <TableCell className="text-right">
-                                                 {h.status === 'Ongoing' && (
-                                                    <UpdateVisitDialog 
-                                                        visitId={h.id} 
-                                                        userId={h.userId} 
-                                                        onVisitUpdated={refreshData} 
-                                                    />
-                                                 )}
-                                            </TableCell>
-                                        </TableRow>
-                                    )) : (
+                           <ScrollArea className="w-full">
+                                <Table>
+                                    <TableHeader>
                                         <TableRow>
-                                            <TableCell colSpan={8} className="h-24 text-center">
-                                                No patient activity yet.
-                                            </TableCell>
+                                            <TableHead>Patient</TableHead>
+                                            <TableHead>Token</TableHead>
+                                            <TableHead>Activity</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Details</TableHead>
+                                            <TableHead>Amount</TableHead>
+                                            <TableHead>Date</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
                                         </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {history.length > 0 ? history.map((h: any, index: number) => (
+                                            <TableRow key={index}>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <Avatar>
+                                                            <AvatarFallback>{getInitials(h.userName)}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div>
+                                                            <p className="font-medium">{h.userName}</p>
+                                                            <p className="text-xs text-muted-foreground">{h.userPhone || h.userEmail}</p>
+                                                        </div>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant="secondary">{h.token ? `#${h.token}` : '-'}</Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={h.activityType === 'Feedback' ? 'secondary' : 'default'}>
+                                                        {h.activityType}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {getStatusBadge(h.status || 'Completed')}
+                                                </TableCell>
+                                                <TableCell className="max-w-xs truncate">
+                                                    <p>{h.service}</p>
+                                                    {h.notes && <p className="text-xs text-muted-foreground italic">"{h.notes}"</p>}
+                                                    {h.quizResults && <p className="text-xs text-muted-foreground">Quiz completed</p>}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {h.expense && h.expense.amount ? `₹${h.expense.amount.toFixed(2)}` : '-'}
+                                                </TableCell>
+                                                <TableCell>{h.date}</TableCell>
+                                                <TableCell className="text-right">
+                                                     {h.status === 'Ongoing' && (
+                                                        <UpdateVisitDialog 
+                                                            visitId={h.id} 
+                                                            userId={h.userId} 
+                                                            onVisitUpdated={refreshData} 
+                                                        />
+                                                     )}
+                                                </TableCell>
+                                            </TableRow>
+                                        )) : (
+                                            <TableRow>
+                                                <TableCell colSpan={8} className="h-24 text-center">
+                                                    No patient activity yet.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                                <ScrollBar orientation="horizontal" />
+                           </ScrollArea>
                         </CardContent>
                     </Card>
                 </TabsContent>
                 <TabsContent value="services" className="mt-6">
-                   <div className="grid gap-8 md:grid-cols-3">
-                        <div className="md:col-span-1">
+                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
                             <CreateServiceForm 
                                 businessId={businessId} 
                                 onServiceCreated={refreshData} 
                             />
                         </div>
-                        <div className="md:col-span-2">
+                        <div className="lg:col-span-2">
                             <ServiceList 
                                 services={services} 
                                 businessId={businessId} 
@@ -439,8 +441,8 @@ export function DashboardClient({
                     <ProfileEditor business={business} onProfileUpdated={refreshData} />
                 </TabsContent>
                 <TabsContent value="campaigns" className="mt-6">
-                   <div className="grid gap-8 md:grid-cols-3">
-                        <div className="md:col-span-1">
+                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
                            <Card>
                                 <CardHeader>
                                     <CardTitle>New Lucky Draw Campaign</CardTitle>
@@ -454,7 +456,7 @@ export function DashboardClient({
                                 </CardContent>
                             </Card>
                         </div>
-                        <div className="md:col-span-2">
+                        <div className="lg:col-span-2">
                             <CampaignList campaigns={campaigns} onAction={refreshData} />
                         </div>
                     </div>
