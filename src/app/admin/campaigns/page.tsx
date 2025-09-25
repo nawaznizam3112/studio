@@ -76,7 +76,7 @@ export default function AdminCampaignsPage() {
             const biz = businessesResult.businesses || [];
             setBusinesses(biz);
 
-        } catch (e: any) => {
+        } catch (e: any) {
             setError(e.message);
         }
         setLoading(false);
