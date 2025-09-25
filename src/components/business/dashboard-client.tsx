@@ -26,7 +26,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage, getServicesForBusiness } from "@/app/actions";
+import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage, getServicesForBusiness, deleteCampaign } from "@/app/actions";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { ProfileEditor } from "./profile-editor";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +39,9 @@ import { UpdateVisitDialog } from "./update-visit-dialog";
 import { LeadList } from "./lead-list";
 import { CreateServiceForm } from "./create-service-form";
 import { ServiceList } from "./service-list";
+import { LuckyDrawDashboard } from "./lucky-draw/LuckyDrawDashboard";
+import { Campaign } from "@/types/campaign";
+
 
 interface Business {
     id: string;
@@ -105,11 +108,12 @@ export function DashboardClient({
 
   const [business, setBusiness] = useState<Business>(initialBusiness);
   const [history, setHistory] = useState<any[]>(initialHistory);
-  const [campaigns, setCampaigns] = useState<any[]>(initialCampaigns);
+  const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
   const [services, setServices] = useState<any[]>(initialServices);
   const [error, setError] = useState<string | null>(null);
   const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
   const broadcastFormRef = useRef<HTMLFormElement>(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
 
   const refreshData = useCallback(async () => {
@@ -249,6 +253,22 @@ export function DashboardClient({
         return Array.from(uniqueLeads.values());
     }, [history]);
 
+    if (activeTab === 'lucky-draw') {
+        return (
+            <LuckyDrawDashboard 
+                businessId={businessId}
+                businessName={business.name}
+                campaigns={campaigns}
+                onCreateCampaign={refreshData}
+                onDeleteCampaign={async (campaignId) => {
+                    await deleteCampaign(campaignId);
+                    refreshData();
+                }}
+                onBack={() => setActiveTab('overview')}
+            />
+        )
+    }
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -276,12 +296,12 @@ export function DashboardClient({
                   </AlertDescription>
                 </Alert>
 
-              <Tabs defaultValue="overview">
+              <Tabs defaultValue="overview" onValueChange={setActiveTab}>
                 <ScrollArea className="w-full whitespace-nowrap">
                     <TabsList className="inline-flex w-max">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="services">Services</TabsTrigger>
-                        <TabsTrigger value="campaigns">Lucky Draw</TabsTrigger>
+                        <TabsTrigger value="lucky-draw">Lucky Draw</TabsTrigger>
                         <TabsTrigger value="profile">Clinic Profile</TabsTrigger>
                     </TabsList>
                     <ScrollBar orientation="horizontal" />
@@ -387,7 +407,7 @@ export function DashboardClient({
                                                 <TableCell>
                                                     {getStatusBadge(h.status || 'Completed')}
                                                 </TableCell>
-                                                <TableCell className="max-w-xs truncate">
+                                                <TableCell className="max-w-[150px] sm:max-w-xs truncate">
                                                     <p>{h.service}</p>
                                                     {h.notes && <p className="text-xs text-muted-foreground italic">"{h.notes}"</p>}
                                                     {h.quizResults && <p className="text-xs text-muted-foreground">Quiz completed</p>}
@@ -440,27 +460,7 @@ export function DashboardClient({
                 <TabsContent value="profile" className="mt-6">
                     <ProfileEditor business={business} onProfileUpdated={refreshData} />
                 </TabsContent>
-                <TabsContent value="campaigns" className="mt-6">
-                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
-                        <div className="lg:col-span-1">
-                           <Card>
-                                <CardHeader>
-                                    <CardTitle>New Lucky Draw Campaign</CardTitle>
-                                    <CardDescription>Create a new lucky draw to engage your patients.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <CreateCampaignForm 
-                                        businessId={businessId} 
-                                        onCampaignCreated={refreshData} 
-                                    />
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div className="lg:col-span-2">
-                            <CampaignList campaigns={campaigns} onAction={refreshData} />
-                        </div>
-                    </div>
-                </TabsContent>
+                {/* The old campaigns tab content is removed, as it's now handled by the LuckyDrawDashboard */}
               </Tabs>
             </div>
         </main>
