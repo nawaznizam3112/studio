@@ -3,7 +3,6 @@ import { getDashboardStats } from "@/app/actions";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Building2, Factory, User } from "lucide-react";
 import Link from "next/link";
-import { AnalyticsChart } from "@/components/admin/analytics-chart";
 
 export default async function AdminDashboard() {
   const stats = await getDashboardStats();
@@ -18,7 +17,7 @@ export default async function AdminDashboard() {
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Admin Dashboard</h1>
         <p className="text-muted-foreground">An overview of your platform's activity.</p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <div className="flex items-center gap-4">
@@ -53,18 +52,6 @@ export default async function AdminDashboard() {
           </CardHeader>
         </Card>
       </div>
-
-      <Card className="col-span-1 lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Business Registration Growth</CardTitle>
-          <CardDescription>
-            A chart showing the number of new businesses registered over the last 6 months.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AnalyticsChart data={stats.businessGrowth || []} />
-        </CardContent>
-      </Card>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

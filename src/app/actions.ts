@@ -1005,38 +1005,10 @@ export async function getDashboardStats() {
         const customersQuery = query(collection(db, 'users'), where('role', '==', 'customer'));
         const customersSnapshot = await getCountFromServer(customersQuery);
 
-
-        // --- Real-time business growth analytics ---
-        const sixMonthsAgo = subMonths(new Date(), 5);
-        sixMonthsAgo.setDate(1); // Start from the beginning of the month
-        
-        const businessGrowthData = Array(6).fill(0).map((_, i) => {
-            const date = subMonths(new Date(), i);
-            return {
-                date: format(date, 'MMM yy'),
-                count: 0,
-            };
-        }).reverse();
-        
-        allBusinessesSnapshot.forEach(doc => {
-            const businessData = doc.data();
-            if (businessData.createdAt && businessData.createdAt.toDate) {
-                 const createdAtDate = businessData.createdAt.toDate();
-                if (createdAtDate >= sixMonthsAgo) {
-                    const monthYear = format(createdAtDate, 'MMM yy');
-                    const monthIndex = businessGrowthData.findIndex(d => d.date === monthYear);
-                    if (monthIndex !== -1) {
-                        businessGrowthData[monthIndex].count++;
-                    }
-                }
-            }
-        });
-        
         return {
             industryCount: industriesSnapshot.size,
             businessCount: allBusinessesSnapshot.size,
             customerCount: customersSnapshot.data().count,
-            businessGrowth: businessGrowthData,
         };
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
