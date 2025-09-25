@@ -5,8 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Send, Calendar, Users } from 'lucide-react';
-import { Campaign } from '../../../types/campaign';
-import { ImageWithFallback } from '../../figma/ImageWithFallback';
+import { Campaign } from '@/types/campaign';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 
 interface CampaignCardProps {
   campaign: Campaign;
