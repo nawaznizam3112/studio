@@ -1,95 +1,200 @@
 
 'use client';
-
 import { useState } from 'react';
 import { Button } from '../../ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../ui/card';
 import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
-import { Upload } from 'lucide-react';
-import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import { Label } from '../../ui/label';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { CreateCampaignData } from '@/types/campaign';
 
 interface CreateCampaignFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: CreateCampaignData) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 }
 
-export function CreateCampaignForm({ onSubmit, onCancel }: CreateCampaignFormProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [prize, setPrize] = useState('');
-  const [prizeImageUrl, setPrizeImageUrl] = useState<string | null>(null);
-  const [associatedService, setAssociatedService] = useState('');
+export function CreateCampaignForm({ onSubmit, onCancel, isLoading }: CreateCampaignFormProps) {
+  const [formData, setFormData] = useState<CreateCampaignData>({
+    title: '',
+    description: '',
+    prize: '',
+    associatedService: '',
+    prizeImageUrl: undefined,
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ title, description, prize, prizeImageUrl, associatedService });
+  const handleInputChange = (field: keyof CreateCampaignData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
-      // In a real app, you'd upload this to a storage service
-      // and get a URL. For now, we'll use a local object URL.
-      setPrizeImageUrl(URL.createObjectURL(file));
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+        setFormData(prev => ({ ...prev, prizeImageUrl: result }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, prizeImageUrl: undefined }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  const isFormValid = formData.title && formData.description && formData.prize && formData.associatedService;
+
   return (
-    <Card className="w-full max-w-lg mx-auto">
-      <CardHeader>
-        <CardTitle>Create a New Lucky Draw</CardTitle>
-        <CardDescription>Fill out the details for your new campaign.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Campaign Title</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="prize">Prize</Label>
-            <Input id="prize" value={prize} onChange={(e) => setPrize(e.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label>Prize Image</Label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md">
-              <div className="space-y-1 text-center">
-                {prizeImageUrl ? (
-                    <Image src={prizeImageUrl} alt="Prize preview" width={100} height={100} className="mx-auto h-24 w-auto object-contain rounded-md" />
-                ) : (
-                    <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                )}
-                <div className="flex text-sm text-muted-foreground">
-                  <label
-                    htmlFor="prizeImageUrl"
-                    className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none"
-                  >
-                    <span>Upload a file</span>
-                    <input id="prizeImageUrl" name="prizeImageUrl" type="file" className="sr-only" onChange={handleImageUpload} />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
+    <div className="min-h-screen bg-background p-4">
+      <div className="mx-auto max-w-2xl">
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-2">
+            <CardTitle className="flex items-center justify-between">
+              Create New Lucky Draw
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onCancel}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="title">Campaign Title</Label>
+                <Input
+                  id="title"
+                  placeholder="Enter campaign title"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  required
+                />
               </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="associatedService">Associated Service</Label>
-            <Input id="associatedService" value={associatedService} onChange={(e) => setAssociatedService(e.target.value)} required />
-            <p className="text-xs text-muted-foreground">This is the service users express interest in to enter the draw.</p>
-          </div>
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button type="button" variant="ghost" onClick={onCancel}>Cancel</Button>
-            <Button type="submit">Create Campaign</Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Describe your lucky draw campaign"
+                  rows={3}
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reward">Prize</Label>
+                <Input
+                  id="reward"
+                  placeholder="Enter the prize (e.g., Free laser session)"
+                  value={formData.prize}
+                  onChange={(e) => handleInputChange('prize', e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Prize Image</Label>
+                <div className="space-y-4">
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Prize preview"
+                        className="w-full h-48 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={handleRemoveImage}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8">
+                      <label htmlFor="image-upload" className="cursor-pointer">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <div className="p-3 bg-muted rounded-full">
+                            <Upload className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-muted-foreground">
+                              Click to upload prize image
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              PNG, JPG, GIF up to 10MB
+                            </p>
+                          </div>
+                        </div>
+                        <input
+                          id="image-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="associatedService">Associated Service</Label>
+                <Input
+                  id="associatedService"
+                  placeholder="Service name (e.g., Laser Hair Removal)"
+                  value={formData.associatedService}
+                  onChange={(e) => handleInputChange('associatedService', e.target.value)}
+                  required
+                />
+                <p className="text-sm text-muted-foreground">
+                  This is the service users express interest in to enter the draw.
+                </p>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  className="flex-1"
+                  disabled={isLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isFormValid || isLoading}
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600"
+                >
+                  {isLoading ? 'Creating...' : 'Create Campaign'}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

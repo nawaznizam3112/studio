@@ -17,7 +17,7 @@ import {
   BarChart3,
   Crown
 } from 'lucide-react';
-import { Campaign } from '@/types/campaign';
+import { Campaign, CreateCampaignData } from '@/types/campaign';
 import { CreateCampaignForm } from './CreateCampaignForm';
 import { CampaignCard } from './CampaignCard';
 import { useToast } from '@/hooks/use-toast';
@@ -45,6 +45,8 @@ export function LuckyDrawDashboard({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const { toast } = useToast();
+  const [isCreating, setIsCreating] = useState(false);
+
 
   // Mock statistics
   const stats = {
@@ -54,13 +56,16 @@ export function LuckyDrawDashboard({
     conversionRate: campaigns.length > 0 ? Math.round((campaigns.reduce((sum, c) => sum + (c.entries?.length || 0), 0) / campaigns.length) * 100) / 100 : 0
   };
 
-  const handleCreateCampaign = async (data: any) => {
+  const handleCreateCampaign = async (data: CreateCampaignData) => {
+    setIsCreating(true);
     const formData = new FormData();
-    Object.keys(data).forEach(key => {
-        if(data[key]) {
-            formData.append(key, data[key]);
-        }
-    });
+    formData.append('title', data.title);
+    formData.append('description', data.description);
+    formData.append('reward', data.prize);
+    formData.append('associatedService', data.associatedService);
+    if (data.prizeImageUrl) {
+      formData.append('prizeImageUrl', data.prizeImageUrl);
+    }
     formData.append('businessId', businessId);
     
     const result = await createCampaign(formData);
@@ -72,6 +77,7 @@ export function LuckyDrawDashboard({
     } else {
         toast({ title: "Error", description: result.error, variant: 'destructive' });
     }
+    setIsCreating(false);
   };
 
   const handleEnterDraw = (campaign: Campaign) => {
@@ -85,6 +91,7 @@ export function LuckyDrawDashboard({
       <CreateCampaignForm
         onSubmit={handleCreateCampaign}
         onCancel={() => setShowCreateForm(false)}
+        isLoading={isCreating}
       />
     );
   }

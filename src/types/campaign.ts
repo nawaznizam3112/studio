@@ -1,4 +1,5 @@
 
+
 export interface CampaignEntry {
     id: string;
     customerId: string;
@@ -19,4 +20,12 @@ export interface Campaign {
   expiresAt?: Date;
   entries: CampaignEntry[];
   associatedService?: string;
+}
+
+export interface CreateCampaignData {
+    title: string;
+    description: string;
+    prize: string;
+    associatedService: string;
+    prizeImageUrl?: string;
 }
