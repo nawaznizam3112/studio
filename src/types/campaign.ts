@@ -1,10 +1,12 @@
 
-
 export interface CampaignEntry {
     id: string;
-    customerId: string;
+    campaignId: string;
     customerName: string;
+    customerPhone: string;
+    customerEmail?: string;
     enteredAt: Date;
+    isWinner: boolean;
 }
 
 export interface Campaign {
@@ -18,6 +20,7 @@ export interface Campaign {
   createdAt: Date;
   updatedAt: Date;
   expiresAt?: Date;
+  endDate?: Date;
   entries: CampaignEntry[];
   associatedService?: string;
 }
@@ -29,3 +32,5 @@ export interface CreateCampaignData {
     associatedService: string;
     prizeImageUrl?: string;
 }
+
+    

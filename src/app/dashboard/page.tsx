@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useToast } from '@/hooks/use-toast';
 import { 
   QrCode, 
   Star, 
@@ -46,7 +45,7 @@ import { RealtimeStatus } from '@/components/features/realtimestatus';
 import { VideoReelPlayer } from '@/components/features/video-reel-player';
 import { PromotionalFeed } from '@/components/features/promotional-feed';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import jsQR from 'jsqr';
 import { ServiceHistory } from '@/components/features/service-history';
@@ -54,6 +53,8 @@ import { Feedback } from '@/components/features/feedback';
 import { PendingConfirmationCard } from '@/components/features/pending-confirmation-card';
 import Image from 'next/image';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Toaster, toast } from 'sonner';
+import { ActiveCampaigns } from '@/components/business/lucky-draw/ActiveCampaigns';
 
 
 interface User {
@@ -110,7 +111,7 @@ export default function CustomerDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [scannedFeature, setScannedFeature] = useState<string | null>(null);
   const [showReward, setShowReward] = useState(false);
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
   const [rewards, setRewards] = useState<Offer[]>([]);
   const [showChatbot, setShowChatbot] = useState(false);
   const [serviceHistory, setServiceHistory] = useState<any[]>([]);
@@ -125,7 +126,6 @@ export default function CustomerDashboard() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { toast } = useToast();
   const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
 
@@ -181,10 +181,10 @@ export default function CustomerDashboard() {
                         if(url.pathname.startsWith('/business/')) {
                             router.push(url.pathname);
                         } else {
-                           toast({variant: 'destructive', title: 'Invalid QR Code', description: 'This QR code is not for a valid business check-in.' });
+                           toast.error('Invalid QR Code', { description: 'This QR code is not for a valid business check-in.' });
                         }
                     } catch (e) {
-                        toast({variant: 'destructive', title: 'Invalid QR Code', description: 'The scanned code is not a valid URL.' });
+                        toast.error('Invalid QR Code', { description: 'The scanned code is not a valid URL.' });
                     }
                     return; // Stop scanning
                 }
@@ -199,7 +199,7 @@ export default function CustomerDashboard() {
       cancelAnimationFrame(animationFrameId);
     };
 
-  }, [dialogOpen, router, toast]);
+  }, [dialogOpen, router]);
 
   // Main data loading effect
   useEffect(() => {
@@ -225,33 +225,38 @@ export default function CustomerDashboard() {
       
     } catch (error) {
       console.warn('Dashboard initialization error:', error);
-      toast({ title: "Failed to load dashboard data." });
+      toast.error("Failed to load dashboard data.");
     } finally {
         setLoading(false);
     }
   };
 
-  const handleEnterDraw = async (campaign: Campaign) => {
+  const handleEnterDraw = async (campaignId: string) => {
       if (!session?.userId) {
-          toast({ title: "Please log in", description: "You need to be logged in to enter a draw.", variant: 'destructive' });
+          toast.error("Please log in", { description: "You need to be logged in to enter a draw." });
           return;
       }
       setIsSubmittingLead(true);
+      const campaign = campaigns.find(c => c.id === campaignId);
+      if (!campaign) {
+          toast.error("Campaign not found");
+          setIsSubmittingLead(false);
+          return;
+      }
       const result = await createLeadFromCampaign({
           userId: session.userId,
-          campaignId: campaign.id,
+          campaignId: campaignId,
           businessId: campaign.businessId,
           associatedService: campaign.associatedService || 'General Interest'
       });
       setIsSubmittingLead(false);
 
       if (result.success) {
-          toast({
-              title: "You're in!",
+          toast.success("You're in!", {
               description: "Your entry is recorded. For queries, contact +919845180066.",
           });
       } else {
-          toast({ title: "Error", description: result.error, variant: 'destructive' });
+          toast.error("Error", { description: result.error });
       }
   };
 
@@ -340,10 +345,10 @@ export default function CustomerDashboard() {
         fetchRewards(),
         fetchServiceHistory(),
       ]);
-      toast({ title: 'Data refreshed' });
+      toast.info('Data refreshed');
     } catch (error) {
       console.warn('Refresh failed:', error);
-      toast({ title: 'Could not refresh data.' });
+      toast.error('Could not refresh data.');
     } finally {
       setIsRefreshing(false);
     }
@@ -378,6 +383,7 @@ export default function CustomerDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <Toaster richColors />
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
         <div className="flex items-center justify-between mb-4">
@@ -474,7 +480,7 @@ export default function CustomerDashboard() {
                     key={visit.id}
                     visit={visit}
                     onAction={() => {
-                        toast({ title: "Refreshing your history..." });
+                        toast.info("Refreshing your history...");
                         refreshUserData();
                     }}
                 />
@@ -538,67 +544,11 @@ export default function CustomerDashboard() {
             )}
 
             {/* Active Campaigns */}
-            {campaigns.length > 0 && (
-              <Card className="p-4 border-primary">
-                <h3 className="mb-3 flex items-center font-semibold text-base">
-                  <Target className="w-5 h-5 mr-2 text-primary" />
-                  Active Campaigns
-                </h3>
-                <div className="space-y-4">
-                  {campaigns.map((campaign) => (
-                    <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
-                       {campaign.prizeImageUrl && (
-                          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                            <Image
-                              src={campaign.prizeImageUrl}
-                              alt={campaign.reward}
-                              fill
-                              className="object-cover"
-                              data-ai-hint="reward prize"
-                            />
-                          </div>
-                       )}
-                      <div className="flex justify-between items-start">
-                         <div>
-                            <p className="font-semibold">{campaign.title}</p>
-                            <p className="text-xs text-muted-foreground">From {campaign.businessName}</p>
-                         </div>
-                        <Badge variant="default" className="text-sm">
-                          Prize: {campaign.reward}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{campaign.description}</p>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="default" disabled={isSubmittingLead}>
-                              <Send className="mr-2 h-4 w-4"/>
-                              {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                <AlertDialogDescription>
-                                    This will create a lead for the clinic. Do you want to proceed?
-                                </AlertDialogDescription>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
+            <ActiveCampaigns 
+                campaigns={campaigns} 
+                businessName="our partners"
+                onEnterDraw={(campaignId) => handleEnterDraw(campaignId)}
+            />
             
           </TabsContent>
 
@@ -648,67 +598,11 @@ export default function CustomerDashboard() {
               <p className="text-sm text-muted-foreground">Your total entries in active campaigns.</p>
             </Card>
 
-            {campaigns.length > 0 && (
-              <Card className="p-4 border-primary">
-                <h3 className="mb-3 flex items-center font-semibold text-base">
-                  <Target className="w-5 h-5 mr-2 text-primary" />
-                  Active Campaigns
-                </h3>
-                <div className="space-y-4">
-                  {campaigns.map((campaign) => (
-                    <div key={campaign.id} className="space-y-3 p-3 rounded-lg bg-background border">
-                      {campaign.prizeImageUrl && (
-                          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
-                            <Image
-                              src={campaign.prizeImageUrl}
-                              alt={campaign.reward}
-                              fill
-                              className="object-cover"
-                              data-ai-hint="reward prize"
-                            />
-                          </div>
-                       )}
-                      <div className="flex justify-between items-start">
-                         <div>
-                            <p className="font-semibold">{campaign.title}</p>
-                            <p className="text-xs text-muted-foreground">From {campaign.businessName}</p>
-                         </div>
-                        <Badge variant="default" className="text-sm">
-                          Prize: {campaign.reward}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{campaign.description}</p>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="sm" variant="default" disabled={isSubmittingLead}>
-                              <Send className="mr-2 h-4 w-4"/>
-                              {isSubmittingLead ? 'Entering...' : 'Enter Draw'}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Enter Lucky Draw: {campaign.title}</AlertDialogTitle>
-                            </AlertDialogHeader>
-                                <AlertDialogDescription>
-                                    To enter the draw for a <span className="font-bold">{campaign.reward}</span>, you must express interest in the following service:
-                                </AlertDialogDescription>
-                            <div className="my-2 p-3 font-bold text-center bg-secondary rounded-md">{campaign.associatedService || 'the associated treatment'}</div>
-                                <AlertDialogDescription>
-                                    This will create a lead for the clinic. Do you want to proceed?
-                                </AlertDialogDescription>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleEnterDraw(campaign)} disabled={isSubmittingLead}>
-                                    {isSubmittingLead ? 'Submitting...' : 'Yes, Enter Now'}
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
+            <ActiveCampaigns 
+                campaigns={campaigns} 
+                businessName="our partners"
+                onEnterDraw={(campaignId) => handleEnterDraw(campaignId)}
+            />
 
             <ServiceHistory serviceHistory={serviceHistory} />
             
@@ -750,7 +644,7 @@ export default function CustomerDashboard() {
                 </div>
               </div>
             </Card>
-
+            
             <Button 
               variant="destructive"
               onClick={handleSignOut}
@@ -764,3 +658,5 @@ export default function CustomerDashboard() {
     </div>
   );
 }
+
+    
