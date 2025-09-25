@@ -247,10 +247,10 @@ export function LuckyDrawDashboard({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {campaigns.some(c => c.entries.length > 0) ? (
+                {campaigns.some(c => (c.entries?.length || 0) > 0) ? (
                   <div className="space-y-4">
                     {campaigns
-                      .flatMap(c => c.entries.map(e => ({ ...e, campaignTitle: c.title, prize: c.prize })))
+                      .flatMap(c => (c.entries || []).map(e => ({ ...e, campaignTitle: c.title, prize: c.prize })))
                       .sort((a, b) => new Date(b.enteredAt).getTime() - new Date(a.enteredAt).getTime())
                       .slice(0, 10)
                       .map((entry) => (
