@@ -55,6 +55,7 @@ import Image from 'next/image';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Toaster, toast } from 'sonner';
 import { ActiveCampaigns } from '@/components/business/lucky-draw/ActiveCampaigns';
+import { Campaign } from '@/types/campaign';
 
 
 interface User {
@@ -79,18 +80,6 @@ interface Offer {
   expiresAt: string;
 }
 
-interface Campaign {
-  id: string;
-  title: string;
-  description: string;
-  reward: string;
-  businessName: string;
-  businessId: string;
-  expiresAt: string;
-  associatedService?: string;
-  prizeImageUrl?: string;
-}
-
 interface BusinessVideo {
   businessName: string;
   promoVideoUrl: string;
@@ -111,7 +100,7 @@ export default function CustomerDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [scannedFeature, setScannedFeature] = useState<string | null>(null);
   const [showReward, setShowReward] = useState(false);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [rewards, setRewards] = useState<Offer[]>([]);
   const [showChatbot, setShowChatbot] = useState(false);
   const [serviceHistory, setServiceHistory] = useState<any[]>([]);
@@ -385,25 +374,25 @@ export default function CustomerDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <Toaster richColors />
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4">
+      <header className="sticky top-0 z-40 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 shadow-md">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-0 sm:space-x-2">
             <Button 
               onClick={() => router.push('/')}
               variant="ghost" 
+              size="icon"
+              className="text-white hover:bg-white/20 sm:hidden"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+             <Button 
+              onClick={() => router.push('/')}
+              variant="ghost" 
               size="sm"
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/20 hidden sm:flex"
             >
               <ArrowLeft className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Home</span>
-            </Button>
-            <Button 
-              onClick={handleSignOut}
-              variant="ghost" 
-              size="sm"
-              className="text-white hover:bg-white/20"
-            >
-              Sign Out
             </Button>
           </div>
           
@@ -419,9 +408,9 @@ export default function CustomerDashboard() {
             </Button>
             <RealtimeStatus />
             <RealtimeNotifications userId={user.id} />
-            <div className="flex items-center space-x-1">
-              <Trophy className="w-5 h-5 text-yellow-300" />
-              <span className="font-semibold">{user.visits.toLocaleString()}</span>
+            <div className="flex items-center space-x-2 rounded-full bg-black/20 px-3 py-1">
+              <Trophy className="w-4 h-4 text-yellow-300" />
+              <span className="font-semibold text-sm">{user.visits.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -429,13 +418,13 @@ export default function CustomerDashboard() {
         {/* User Profile Section */}
         <div className="text-center">
           <Avatar className="w-20 h-20 mx-auto mb-3 border-4 border-white/30">
-            <AvatarFallback className="text-lg bg-white/20">
+            <AvatarFallback className="text-2xl bg-white/20">
               {user.name.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
-          <h2 className="text-xl">{user.name}</h2>
+          <h2 className="text-2xl font-bold">{user.name}</h2>
           <div className="flex items-center justify-center space-x-2 mt-2">
-            <Badge className="bg-yellow-500 text-black">{user.visits} Entries</Badge>
+            <Badge className="bg-yellow-400 text-black shadow-md">{user.visits} Entries</Badge>
             {campaigns.length > 0 && (
               <span className="text-sm opacity-80">
                 in {campaigns.length} active campaigns
@@ -443,36 +432,47 @@ export default function CustomerDashboard() {
             )}
           </div>
           
-          <div className="flex justify-center space-x-4 sm:space-x-6 mt-4 text-sm">
+          <div className="flex justify-center space-x-6 mt-4 text-sm">
             <div>
-              <div className="font-semibold">{user.visits}</div>
-              <div className="opacity-80">Visits</div>
+              <div className="font-bold text-lg">{user.visits}</div>
+              <div className="opacity-80 text-xs">Visits</div>
             </div>
             <div>
-              <div className="font-semibold">{user.streak}</div>
-              <div className="opacity-80">Day Streak</div>
+              <div className="font-bold text-lg">{user.streak}</div>
+              <div className="opacity-80 text-xs">Day Streak</div>
             </div>
             <div>
-              <div className="font-semibold">{user.achievements?.length || 0}</div>
-              <div className="opacity-80">Badges</div>
+              <div className="font-bold text-lg">{user.achievements?.length || 0}</div>
+              <div className="opacity-80 text-xs">Badges</div>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
       <div className="p-2 sm:p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <ScrollArea>
-              <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="home">Home</TabsTrigger>
-                  <TabsTrigger value="explore">Explore</TabsTrigger>
-                  <TabsTrigger value="entries">My Entries</TabsTrigger>
-                  <TabsTrigger value="profile">Profile</TabsTrigger>
-              </TabsList>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm md:relative md:bg-transparent md:border-none md:backdrop-blur-none">
+              <ScrollArea className="md:flex md:justify-center">
+                <TabsList className="grid h-16 w-full grid-cols-4 md:h-12 md:w-auto md:max-w-md">
+                    <TabsTrigger value="home" className="flex-col gap-1 md:flex-row md:gap-2 h-full rounded-none text-xs md:text-sm">
+                      <Zap className="w-5 h-5"/> Home
+                    </TabsTrigger>
+                    <TabsTrigger value="explore" className="flex-col gap-1 md:flex-row md:gap-2 h-full rounded-none text-xs md:text-sm">
+                      <MapPin className="w-5 h-5"/> Explore
+                    </TabsTrigger>
+                    <TabsTrigger value="entries" className="flex-col gap-1 md:flex-row md:gap-2 h-full rounded-none text-xs md:text-sm">
+                      <Trophy className="w-5 h-5"/> My Entries
+                    </TabsTrigger>
+                    <TabsTrigger value="profile" className="flex-col gap-1 md:flex-row md:gap-2 h-full rounded-none text-xs md:text-sm">
+                      <User className="w-5 h-5"/> Profile
+                    </TabsTrigger>
+                </TabsList>
+                <ScrollBar orientation="horizontal" className="hidden"/>
+              </ScrollArea>
+            </div>
 
+          <div className="pb-20 md:pb-0">
           <TabsContent value="home" className="space-y-4 mt-4">
 
             {pendingVisits.map(visit => (
@@ -653,10 +653,9 @@ export default function CustomerDashboard() {
               Sign Out
             </Button>
           </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>
   );
 }
-
-    

@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Send, Calendar, Users } from 'lucide-react';
 import { Campaign } from '../../../types/campaign';
 import { ImageWithFallback } from '../../figma/ImageWithFallback';
@@ -25,7 +25,7 @@ export function CampaignCard({ campaign, businessName, onEnterDraw, showEntryCou
   };
 
   const isActive = campaign.status === 'active';
-  const hasEnded = campaign.expiresAt && new Date() > new Date(campaign.expiresAt);
+  const hasEnded = campaign.endDate && new Date() > new Date(campaign.endDate);
 
   return (
     <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
@@ -78,10 +78,10 @@ export function CampaignCard({ campaign, businessName, onEnterDraw, showEntryCou
         </p>
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          {campaign.expiresAt && (
+          {campaign.endDate && (
             <div className="flex items-center space-x-1">
               <Calendar className="w-3 h-3" />
-              <span>Ends {formatDate(new Date(campaign.expiresAt))}</span>
+              <span>Ends {formatDate(new Date(campaign.endDate))}</span>
             </div>
           )}
           {showEntryCount && (

@@ -17,11 +17,11 @@ export interface Campaign {
   prize: string;
   prizeImageUrl?: string;
   status: 'active' | 'completed' | 'draft';
-  createdAt: Date;
-  updatedAt: Date;
-  expiresAt?: Date;
-  endDate?: Date;
-  entries: CampaignEntry[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  expiresAt?: Date | string;
+  endDate?: Date | string;
+  entries?: CampaignEntry[];
   associatedService?: string;
 }
 
@@ -32,5 +32,3 @@ export interface CreateCampaignData {
     associatedService: string;
     prizeImageUrl?: string;
 }
-
-    

@@ -1,13 +1,13 @@
 
 'use client';
 import { useState } from 'react';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Textarea } from '../../ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { Label } from '../../ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
-import { CreateCampaignData } from '@/types/campaign';
+import { CreateCampaignData } from '../../../types/campaign';
 
 interface CreateCampaignFormProps {
   onSubmit: (data: CreateCampaignData) => void;
