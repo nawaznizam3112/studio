@@ -9,6 +9,18 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateCampaignForm } from "@/components/business/create-campaign-form";
 import { CampaignList } from "@/components/business/campaign-list";
+import { CreateOfferForm } from "@/components/business/create-offer-form";
+import { OfferList } from "@/components/business/offer-list";
+import { CreateServiceForm } from "@/components/business/create-service-form";
+import { ServiceList } from "@/components/business/service-list";
+import { CreateQuizForm } from "@/components/business/create-quiz-form";
+import { QuizList } from "@/components/business/quiz-list";
+import { CreateStoryForm } from "@/components/business/create-story-form";
+import { StoryList } from "@/components/business/story-list";
+import { CreateNudgeForm } from "./create-nudge-form";
+import { NudgeList } from "./nudge-list";
+import { CreateProductForm } from "./create-product-form";
+import { ProductList } from "./product-list";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -26,7 +38,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage, getServicesForBusiness, deleteCampaign } from "@/app/actions";
+import { getCampaignsForBusiness, getBusinessById, getBusinessCustomerHistory, sendBroadcastMessage, getOffersForBusiness, getServicesForBusiness, getQuizzesForBusiness, getStoriesForBusiness, getNudgesForBusiness, getProductsForBusiness } from "@/app/actions";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { ProfileEditor } from "./profile-editor";
 import { useToast } from "@/hooks/use-toast";
@@ -37,10 +49,6 @@ import { CustomerChart } from "./customer-chart";
 import { Textarea } from "../ui/textarea";
 import { UpdateVisitDialog } from "./update-visit-dialog";
 import { LeadList } from "./lead-list";
-import { CreateServiceForm } from "./create-service-form";
-import { ServiceList } from "./service-list";
-import { LuckyDrawDashboard } from "./lucky-draw/LuckyDrawDashboard";
-import { Campaign } from "@/types/campaign";
 
 
 interface Business {
@@ -108,23 +116,32 @@ export function DashboardClient({
 
   const [business, setBusiness] = useState<Business>(initialBusiness);
   const [history, setHistory] = useState<any[]>(initialHistory);
-  const [campaigns, setCampaigns] = useState<Campaign[]>(initialCampaigns);
+  const [campaigns, setCampaigns] = useState<any[]>(initialCampaigns);
+  const [offers, setOffers] = useState<any[]>(initialOffers);
   const [services, setServices] = useState<any[]>(initialServices);
+  const [quizzes, setQuizzes] = useState<any[]>(initialQuizzes);
+  const [stories, setStories] = useState<any[]>(initialStories);
+  const [nudges, setNudges] = useState<any[]>(initialNudges);
+  const [products, setProducts] = useState<any[]>(initialProducts);
   const [error, setError] = useState<string | null>(null);
   const [isSendingBroadcast, setIsSendingBroadcast] = useState(false);
   const broadcastFormRef = useRef<HTMLFormElement>(null);
-  const [activeTab, setActiveTab] = useState("overview");
 
 
   const refreshData = useCallback(async () => {
     if (!session) return;
     setError(null);
     try {
-      const [campaignsResult, businessResult, historyResult, servicesResult] = await Promise.all([
+      const [campaignsResult, businessResult, historyResult, offersResult, servicesResult, quizzesResult, storiesResult, nudgesResult, productsResult] = await Promise.all([
         getCampaignsForBusiness(businessId),
         getBusinessById(businessId),
         getBusinessCustomerHistory(businessId),
+        getOffersForBusiness(businessId),
         getServicesForBusiness(businessId),
+        getQuizzesForBusiness(businessId),
+        getStoriesForBusiness(businessId),
+        getNudgesForBusiness(businessId),
+        getProductsForBusiness(businessId),
       ]);
 
       if (campaignsResult.error) throw new Error(campaignsResult.error);
@@ -136,9 +153,23 @@ export function DashboardClient({
       if (historyResult.error) throw new Error(historyResult.error);
       setHistory(historyResult.history || []);
 
+      if (offersResult.error) throw new Error(offersResult.error);
+      setOffers(offersResult.offers || []);
+
       if (servicesResult.error) throw new Error(servicesResult.error);
       setServices(servicesResult.services || []);
+      
+      if (quizzesResult.error) throw new Error(quizzesResult.error);
+      setQuizzes(quizzesResult.quizzes || []);
+      
+      if (storiesResult.error) throw new Error(storiesResult.error);
+      setStories(storiesResult.stories || []);
 
+      if (nudgesResult.error) throw new Error(nudgesResult.error);
+      setNudges(nudgesResult.nudges || []);
+
+      if (productsResult.error) throw new Error(productsResult.error);
+      setProducts(productsResult.products || []);
 
     } catch (e: any) {
       setError(e.message);
@@ -253,23 +284,6 @@ export function DashboardClient({
         return Array.from(uniqueLeads.values());
     }, [history]);
 
-    if (activeTab === 'lucky-draw') {
-        return (
-            <LuckyDrawDashboard 
-                businessId={businessId}
-                businessName={business.name}
-                campaigns={campaigns}
-                onCreateCampaign={refreshData}
-                onDeleteCampaign={async (campaignId) => {
-                    await deleteCampaign(campaignId);
-                    refreshData();
-                }}
-                onBack={() => setActiveTab('overview')}
-            />
-        )
-    }
-
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
         <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6 lg:px-8">
@@ -296,13 +310,20 @@ export function DashboardClient({
                   </AlertDescription>
                 </Alert>
 
-              <Tabs defaultValue="overview" onValueChange={setActiveTab}>
+              <Tabs defaultValue="overview">
                 <ScrollArea className="w-full whitespace-nowrap">
                     <TabsList className="inline-flex w-max">
                         <TabsTrigger value="overview">Overview</TabsTrigger>
                         <TabsTrigger value="services">Services</TabsTrigger>
-                        <TabsTrigger value="lucky-draw">Lucky Draw</TabsTrigger>
-                        <TabsTrigger value="profile">Clinic Profile</TabsTrigger>
+                        <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+                        <TabsTrigger value="offers">Offers</TabsTrigger>
+                        <TabsTrigger value="quizzes">Quizzes</TabsTrigger>
+                        <TabsTrigger value="stories">Stories</TabsTrigger>
+                        <TabsTrigger value="nudges">Nudges</TabsTrigger>
+                        <TabsTrigger value="products">Products</TabsTrigger>
+                        <TabsTrigger value="leads">Leads ({leads.length})</TabsTrigger>
+                        <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
+                        <TabsTrigger value="profile">Profile</TabsTrigger>
                     </TabsList>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
@@ -457,13 +478,138 @@ export function DashboardClient({
                         </div>
                     </div>
                 </TabsContent>
+                <TabsContent value="campaigns" className="mt-6">
+                    <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
+                            <CreateCampaignForm 
+                                businessId={businessId} 
+                                onCampaignCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <CampaignList campaigns={campaigns} onAction={refreshData} />
+                        </div>
+                    </div>
+                </TabsContent>
+                <TabsContent value="offers" className="mt-6">
+                    <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
+                            <CreateOfferForm 
+                                businessId={businessId} 
+                                onOfferCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <OfferList 
+                                offers={offers} 
+                                onOfferDeleted={refreshData} 
+                            />
+                        </div>
+                    </div>
+                </TabsContent>
+                <TabsContent value="quizzes" className="mt-6">
+                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
+                            <CreateQuizForm 
+                                businessId={businessId} 
+                                onQuizCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <QuizList 
+                                quizzes={quizzes} 
+                                businessId={businessId} 
+                                onQuizDeleted={refreshData} 
+                            />
+                        </div>
+                    </div>
+                </TabsContent>
+                 <TabsContent value="stories" className="mt-6">
+                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
+                            <CreateStoryForm 
+                                businessId={businessId} 
+                                onStoryCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <StoryList 
+                                stories={stories} 
+                                businessId={businessId} 
+                                onStoryDeleted={refreshData} 
+                            />
+                        </div>
+                    </div>
+                </TabsContent>
+                 <TabsContent value="nudges" className="mt-6">
+                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
+                            <CreateNudgeForm 
+                                businessId={businessId} 
+                                services={services}
+                                onNudgeCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <NudgeList 
+                                nudges={nudges} 
+                                businessId={businessId} 
+                                onNudgeDeleted={refreshData} 
+                            />
+                        </div>
+                    </div>
+                </TabsContent>
+                 <TabsContent value="products" className="mt-6">
+                   <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-3">
+                        <div className="lg:col-span-1">
+                            <CreateProductForm 
+                                businessId={businessId} 
+                                onProductCreated={refreshData} 
+                            />
+                        </div>
+                        <div className="lg:col-span-2">
+                            <ProductList 
+                                products={products} 
+                                businessId={businessId} 
+                                onProductDeleted={refreshData} 
+                            />
+                        </div>
+                    </div>
+                </TabsContent>
+                <TabsContent value="leads" className="mt-6">
+                    <LeadList leads={leads} onAction={refreshData} />
+                </TabsContent>
+                <TabsContent value="broadcast" className="mt-6">
+                   <Card>
+                       <CardHeader>
+                           <CardTitle>Send WhatsApp Broadcast</CardTitle>
+                           <CardDescription>Send a message to all customers who have checked in at your business. You have <Badge>{business.message_credits || 0}</Badge> credits.</CardDescription>
+                       </CardHeader>
+                       <CardContent>
+                           <form ref={broadcastFormRef} onSubmit={handleBroadcastSubmit} className="space-y-4">
+                               <div className="space-y-2">
+                                   <Label htmlFor="message">Message</Label>
+                                   <Textarea name="message" id="message" required placeholder="e.g., We have an exclusive 20% off this weekend! Show this message to redeem." />
+                               </div>
+                               <div className="space-y-2">
+                                   <Label htmlFor="mediaUrl">Media URL (Optional)</Label>
+                                   <Input name="mediaUrl" id="mediaUrl" type="url" placeholder="https://your-server.com/image.png" />
+                                   <p className="text-xs text-muted-foreground">Link to an image (PNG, JPG) to send with your message.</p>
+                               </div>
+                               <Button type="submit" disabled={isSendingBroadcast}>
+                                   {isSendingBroadcast ? 'Sending...' : 'Send Broadcast'}
+                               </Button>
+                           </form>
+                       </CardContent>
+                   </Card>
+                </TabsContent>
                 <TabsContent value="profile" className="mt-6">
                     <ProfileEditor business={business} onProfileUpdated={refreshData} />
                 </TabsContent>
-                {/* The old campaigns tab content is removed, as it's now handled by the LuckyDrawDashboard */}
               </Tabs>
             </div>
         </main>
     </div>
   );
 }
+

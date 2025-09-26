@@ -2,7 +2,7 @@
 
 'use client';
 
-import { getBusinessCustomerHistory, getBusinessById, getCampaignsForBusiness, getServicesForBusiness } from "@/app/actions";
+import { getBusinessCustomerHistory, getBusinessById, getCampaignsForBusiness, getOffersForBusiness, getServicesForBusiness, getQuizzesForBusiness, getStoriesForBusiness, getNudgesForBusiness, getProductsForBusiness } from "@/app/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
@@ -77,11 +77,16 @@ export default function BusinessDashboardPage() {
         }
 
         try {
-            const [businessResult, historyResult, campaignsResult, servicesResult] = await Promise.all([
+            const [businessResult, historyResult, campaignsResult, offersResult, servicesResult, quizzesResult, storiesResult, nudgesResult, productsResult] = await Promise.all([
                 getBusinessById(businessId),
                 getBusinessCustomerHistory(businessId),
                 getCampaignsForBusiness(businessId),
+                getOffersForBusiness(businessId),
                 getServicesForBusiness(businessId),
+                getQuizzesForBusiness(businessId),
+                getStoriesForBusiness(businessId),
+                getNudgesForBusiness(businessId),
+                getProductsForBusiness(businessId)
             ]);
 
             if (businessResult.error || !businessResult.business) {
@@ -92,13 +97,12 @@ export default function BusinessDashboardPage() {
                 business: businessResult.business,
                 initialHistory: historyResult.history || [],
                 initialCampaigns: campaignsResult.campaigns || [],
+                initialOffers: offersResult.offers || [],
                 initialServices: servicesResult.services || [],
-                // Pass empty arrays for removed features
-                initialOffers: [],
-                initialQuizzes: [],
-                initialStories: [],
-                initialNudges: [],
-                initialProducts: [],
+                initialQuizzes: quizzesResult.quizzes || [],
+                initialStories: storiesResult.stories || [],
+                initialNudges: nudgesResult.nudges || [],
+                initialProducts: productsResult.products || [],
             });
         } catch(e: any) {
             setError(e.message);
@@ -134,3 +138,4 @@ export default function BusinessDashboardPage() {
     />
   );
 }
+
