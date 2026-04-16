@@ -49,8 +49,12 @@ export default function LandingPage() {
 
     useEffect(() => {
         if (!loading && session) {
-            if (session.role === 'business' || session.role === 'admin') {
+            if (session.role === 'admin' || session.role === 'clinician') {
+                router.push('/clinician');
+            } else if (session.role === 'business') {
                 router.push('/business');
+            } else if (session.role === 'patient') {
+                router.push('/patient');
             } else {
                 router.push('/dashboard');
             }

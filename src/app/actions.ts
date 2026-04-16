@@ -206,6 +206,7 @@ export async function loginUser(formData: FormData) {
     const phone = formData.get('phone') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const audience = formData.get('audience') as string | null;
 
     if (!phone && !email) {
         return { success: false, error: 'Phone number or email is required.' };
@@ -239,6 +240,15 @@ export async function loginUser(formData: FormData) {
         const role = userData.role || 'customer';
         const businessId = role === 'business' ? userData.businessId : undefined;
         const name = userData.name || 'User';
+
+        const isClinicianRole = ['clinician', 'admin', 'business'].includes(role);
+        const isPatientRole = ['patient', 'customer'].includes(role);
+        if (audience === 'clinician' && !isClinicianRole) {
+            return { success: false, error: 'This account is not a clinician account.' };
+        }
+        if (audience === 'patient' && !isPatientRole) {
+            return { success: false, error: 'This account is not a patient account.' };
+        }
 
         return { success: true, role, userId: userDoc.id, name, businessId };
 

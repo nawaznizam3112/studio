@@ -1,7 +1,6 @@
 
-'use client';
 import { LoginForm } from "@/components/auth/login-form";
-import type { Metadata } from 'next';
+import { Suspense } from 'react';
 
 // export const metadata: Metadata = {
 //   title: 'Login',
@@ -9,5 +8,9 @@ import type { Metadata } from 'next';
 // };
 
 export default function LoginPage() {
-    return <LoginForm />;
+    return (
+      <Suspense fallback={<div className="p-6">Loading login...</div>}>
+        <LoginForm />
+      </Suspense>
+    );
 }
