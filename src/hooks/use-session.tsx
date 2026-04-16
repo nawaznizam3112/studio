@@ -5,7 +5,7 @@ import { useState, useEffect, createContext, useContext, ReactNode } from 'react
 
 interface UserSession {
     userId: string;
-    role: 'customer' | 'business' | 'admin';
+    role: 'customer' | 'business' | 'admin' | 'clinician' | 'patient';
     name?: string;
     businessId?: string;
 }

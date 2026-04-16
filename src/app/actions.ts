@@ -11,6 +11,7 @@ import { subMonths, format, startOfDay, differenceInDays, addDays } from 'date-f
 import { toDate, format as formatTz } from 'date-fns-tz';
 import { v4 as uuidv4 } from 'uuid';
 import { sendSms, sendWhatsappMessage } from '@/services/sms';
+import { hashPassword, verifyPassword } from '@/lib/password';
 
 
 // New action to handle WhatsApp check-ins from Twilio webhook
@@ -190,7 +191,7 @@ export async function signupUser(formData: FormData) {
             name,
             email,
             phone,
-            password, // In a real app, hash this!
+            passwordHash: hashPassword(password),
             role: 'customer',
             shareCount: 0,
         });
@@ -206,6 +207,7 @@ export async function loginUser(formData: FormData) {
     const phone = formData.get('phone') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
+    const audience = formData.get('audience') as string | null;
 
     if (!phone && !email) {
         return { success: false, error: 'Phone number or email is required.' };
@@ -232,13 +234,22 @@ export async function loginUser(formData: FormData) {
 
         // If a password is provided (password login flow), validate it.
         // If not (OTP flow), we can skip this check as OTP is the validation.
-        if (password && userData.password !== password) {
+        if (password && !verifyPassword(password, userData.password, userData.passwordHash)) {
             return { success: false, error: 'Invalid password.' };
         }
 
         const role = userData.role || 'customer';
         const businessId = role === 'business' ? userData.businessId : undefined;
         const name = userData.name || 'User';
+
+        const isClinicianRole = ['clinician', 'admin', 'business'].includes(role);
+        const isPatientRole = ['patient', 'customer'].includes(role);
+        if (audience === 'clinician' && !isClinicianRole) {
+            return { success: false, error: 'This account is not a clinician account.' };
+        }
+        if (audience === 'patient' && !isPatientRole) {
+            return { success: false, error: 'This account is not a patient account.' };
+        }
 
         return { success: true, role, userId: userDoc.id, name, businessId };
 

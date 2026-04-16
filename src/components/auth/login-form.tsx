@@ -2,9 +2,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +19,10 @@ export function LoginForm() {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { setSession } = useSession();
+    const requestedAudience = searchParams.get('audience');
+    const audience = requestedAudience === 'clinician' ? 'clinician' : 'patient';
     const [step, setStep] = useState<'phone' | 'otp' | 'email_password'>('phone');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
@@ -60,6 +63,7 @@ export function LoginForm() {
 
     const handleLoginSubmit = async (formData: FormData) => {
         setLoading(true);
+        formData.set('audience', audience);
         const result = await loginUser(formData);
         setLoading(false);
 
@@ -72,7 +76,8 @@ export function LoginForm() {
             
             switch (result.role) {
                 case 'admin':
-                    router.push('/admin');
+                case 'clinician':
+                    router.push(audience === 'clinician' ? '/clinician' : '/admin');
                     break;
                 case 'business':
                     if (result.businessId) {
@@ -84,6 +89,9 @@ export function LoginForm() {
                             variant: 'destructive'
                         });
                     }
+                    break;
+                case 'patient':
+                    router.push('/patient');
                     break;
                 case 'customer':
                 default:
@@ -227,6 +235,8 @@ export function LoginForm() {
                     </div>
                     <CardTitle className="text-2xl">Welcome Back</CardTitle>
                     <CardDescription>
+                        {audience === 'clinician' ? 'Clinician login' : 'Patient login'}
+                        <br />
                         {step === 'phone' && 'Enter your phone number to sign in.'}
                         {step === 'otp' && `Enter the OTP sent to +${phone}.`}
                         {step === 'email_password' && 'Enter your email and password.'}
@@ -236,11 +246,22 @@ export function LoginForm() {
                     <form onSubmit={handleFormSubmit} className="space-y-4">
                         {renderStep()}
                          <p className="text-center text-sm text-muted-foreground">
+                            <Link href={`/login?audience=${audience === 'clinician' ? 'patient' : 'clinician'}`} className="font-medium text-primary hover:underline">
+                                Switch to {audience === 'clinician' ? 'patient' : 'clinician'} login
+                            </Link>
+                            <br />
                             Don't have an account?{' '}
                             <Link href="/signup" className="font-medium text-primary hover:underline">
                                 Sign up
                             </Link>
-                        </p>
+                            {audience === 'patient' ? (
+                              <>
+                                <br />
+                                Have an invite token?{' '}
+                                <Link href="/patient/enroll" className="font-medium text-primary hover:underline">Enroll as patient</Link>
+                              </>
+                            ) : null}
+                         </p>
                     </form>
                 </CardContent>
             </Card>
