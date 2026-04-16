@@ -15,6 +15,7 @@ export function PatientEnrollClient() {
   const [token, setToken] = useState(params.get('token') || '');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -26,8 +27,14 @@ export function PatientEnrollClient() {
           <div><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
           <Button onClick={() => startTransition(async () => {
             const res = await acceptPatientInvite({ token, phone, password });
-            if (res.success) router.push('/login?audience=patient');
+            if (res.success) {
+              setError('');
+              router.push('/login?audience=patient');
+            } else {
+              setError(res.error || 'Enrollment failed.');
+            }
           })} disabled={isPending || !token || !phone || !password}>Complete enrollment</Button>
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
         </CardContent>
       </Card>
     </div>

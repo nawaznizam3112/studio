@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { GuidedSession } from './guided-session';
+import type { BreathingProgram } from '@/types/breathing';
 import {
   acknowledgePatientSafety,
   completeBreathingSession,
@@ -24,7 +25,7 @@ export function PatientDashboard() {
   const [isPending, startTransition] = useTransition();
   const [acknowledged, setAcknowledged] = useState(false);
   const [assignments, setAssignments] = useState<any[]>([]);
-  const [programMap, setProgramMap] = useState<Record<string, any>>({});
+  const [programMap, setProgramMap] = useState<Record<string, BreathingProgram>>({});
   const [summary, setSummary] = useState<any>(null);
   const [anxietyPre, setAnxietyPre] = useState(0);
   const [anxietyPost, setAnxietyPost] = useState(0);
@@ -38,12 +39,12 @@ export function PatientDashboard() {
       getPatientSafetyStatus(patientUserId),
       getPatientTimeline(patientUserId),
       getPatientProgressSummary(patientUserId),
-      getBreathingPrograms(),
+      getBreathingPrograms() as Promise<BreathingProgram[]>,
     ]);
     setAcknowledged(s.acknowledged);
     setAssignments(a);
     setSummary(p);
-    setProgramMap(Object.fromEntries((progr as any[]).map((item: any) => [item.id, item])));
+    setProgramMap(Object.fromEntries(progr.map((item) => [item.id, item])));
   };
 
   useEffect(() => {

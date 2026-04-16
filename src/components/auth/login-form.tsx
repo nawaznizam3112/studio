@@ -21,7 +21,8 @@ export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { setSession } = useSession();
-    const audience = searchParams.get('audience') === 'clinician' ? 'clinician' : searchParams.get('audience') === 'patient' ? 'patient' : 'patient';
+    const requestedAudience = searchParams.get('audience');
+    const audience = requestedAudience === 'clinician' ? 'clinician' : 'patient';
     const [step, setStep] = useState<'phone' | 'otp' | 'email_password'>('phone');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');

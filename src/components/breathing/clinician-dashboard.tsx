@@ -133,7 +133,7 @@ export function ClinicianDashboard() {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Data Retention (India aware)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Data Retention (India-aware)</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <Label>Retention in months</Label>
           <Input type="number" min={1} value={retentionMonths} onChange={(e) => setRetentionMonths(Number(e.target.value || 1))} />

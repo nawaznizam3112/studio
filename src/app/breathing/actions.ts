@@ -1,6 +1,7 @@
 'use server';
 
 import { z } from 'zod';
+import { randomUUID } from 'crypto';
 import {
   addDoc,
   collection,
@@ -19,6 +20,7 @@ import { db } from '@/lib/firebase';
 import { DEFAULT_BREATHING_PROGRAMS } from '@/lib/breathing-programs';
 import { calculateCompletionRate, calculateStreak, daysSinceLastSession } from '@/lib/breathing-analytics';
 import { canAssignProgram, roleGroupForUser, shouldAnonymizeRecord } from '@/lib/breathing-policy';
+import { hashPassword } from '@/lib/password';
 
 async function getUserDoc(userId: string) {
   const snap = await getDoc(doc(db, 'users', userId));
@@ -96,13 +98,13 @@ export async function acceptPatientInvite(input: z.infer<typeof acceptInviteSche
 
   const existingUserQuery = query(collection(db, 'users'), where('email', '==', inviteData.email));
   const existingUser = await getDocs(existingUserQuery);
-  let userId = existingUser.empty ? `user_${Date.now()}` : existingUser.docs[0].id;
+  let userId = existingUser.empty ? randomUUID() : existingUser.docs[0].id;
 
   await setDoc(doc(db, 'users', userId), {
     email: inviteData.email,
     name: inviteData.fullName,
     phone: validated.phone,
-    password: validated.password,
+    passwordHash: hashPassword(validated.password),
     role: 'patient',
     clinicianId: inviteData.clinicianId,
     updatedAt: serverTimestamp(),

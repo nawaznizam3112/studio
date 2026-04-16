@@ -21,7 +21,7 @@ export function GuidedSession({ inhale, exhale, hold = 0, cycles, onComplete }: 
 
   useEffect(() => {
     if (!started) return;
-    const id = setInterval(() => {
+    const intervalId = setInterval(() => {
       setElapsed((e) => e + 1);
       setRemaining((r) => {
         if (r > 1) return r - 1;
@@ -35,13 +35,13 @@ export function GuidedSession({ inhale, exhale, hold = 0, cycles, onComplete }: 
           setStepIndex(0);
           return sequence[0].seconds;
         }
-        clearInterval(id);
+        clearInterval(intervalId);
         onComplete(elapsed + 1);
         setStarted(false);
         return 0;
       });
     }, 1000);
-    return () => clearInterval(id);
+    return () => clearInterval(intervalId);
   }, [started, stepIndex, sequence, cycle, cycles, elapsed, onComplete]);
 
   const step = sequence[stepIndex]?.step || 'inhale';
